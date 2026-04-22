@@ -1,0 +1,557 @@
+[
+  {
+    "date": "2025-07-23T12:29:01.277160",
+    "product_type": "L2__NO2___",
+    "area": {
+      "north": 29.2041,
+      "south": 28.2041,
+      "east": 77.6025,
+      "west": 76.6025
+    },
+    "NO2_mean": 13.44822617880346,
+    "NO2_max": 29.845426529271673,
+    "AER_AI_mean": 1.2905899804081946,
+    "CO_mean": 95.06602976120418,
+    "HCHO_mean": 27.406890829775204,
+    "SO2_mean": 8.226671423363992,
+    "CH4_mean": 1872.5321907339383,
+    "cloud_cover": 22.353818130458713,
+    "processing_level": "L2",
+    "platform": "Sentinel-5P"
+  },
+  {
+    "date": "2025-07-23T12:29:01.277160",
+    "product_type": "MODIS_Terra_Aerosol_5km_Daily",
+    "area": {
+      "north": 29.2041,
+      "south": 28.2041,
+      "east": 77.6025,
+      "west": 76.6025
+    },
+    "AOD_550nm": 0.6128794738777272,
+    "AOD_660nm": 0.1294654097451189,
+    "AOD_860nm": 0.1110816773312892,
+    "fire_count": 5,
+    "fire_confidence": 0.6880447085061856,
+    "land_cover": "2",
+    "platform": "MODIS_Terra"
+  },
+  {
+    "date": "2025-07-25T12:29:01.277160",
+    "product_type": "L2__NO2___",
+    "area": {
+      "north": 29.2041,
+      "south": 28.2041,
+      "east": 77.6025,
+      "west": 76.6025
+    },
+    "NO2_mean": 32.384341994018484,
+    "NO2_max": 72.50311784212573,
+    "AER_AI_mean": 0.38936832542620325,
+    "CO_mean": 109.60013992451712,
+    "HCHO_mean": 28.804943932623818,
+    "SO2_mean": 3.479385143546768,
+    "CH4_mean": 1743.1212577167446,
+    "cloud_cover": 19.41578199172955,
+    "processing_level": "L2",
+    "platform": "Sentinel-5P"
+  },
+  {
+    "date": "2025-07-25T12:29:01.277160",
+    "product_type": "MODIS_Terra_Aerosol_5km_Daily",
+    "area": {
+      "north": 29.2041,
+      "south": 28.2041,
+      "east": 77.6025,
+      "west": 76.6025
+    },
+    "AOD_550nm": 0.027874999653052457,
+    "AOD_660nm": 0.1798281652233661,
+    "AOD_860nm": 0.20998525866696469,
+    "fire_count": 6,
+    "fire_confidence": 0.9670982333628277,
+    "land_cover": "4",
+    "platform": "MODIS_Terra"
+  },
+  {
+    "date": "2025-07-27T12:29:01.277160",
+    "product_type": "L2__NO2___",
+    "area": {
+      "north": 29.2041,
+      "south": 28.2041,
+      "east": 77.6025,
+      "west": 76.6025
+    },
+    "NO2_mean": 35.52188648889112,
+    "NO2_max": 25.183086261225057,
+    "AER_AI_mean": -0.03548625816531181,
+    "CO_mean": 81.04735315945675,
+    "HCHO_mean": 20.342370907837033,
+    "SO2_mean": 2.024777568430598,
+    "CH4_mean": 1792.0787335766954,
+    "cloud_cover": 1.493131245878564,
+    "processing_level": "L2",
+    "platform": "Sentinel-5P"
+  },
+  {
+    "date": "2025-07-27T12:29:01.277160",
+    "product_type": "MODIS_Terra_Aerosol_5km_Daily",
+    "area": {
+      "north": 29.2041,
+      "south": 28.2041,
+      "east": 77.6025,
+      "west": 76.6025
+    },
+    "AOD_550nm": 0.24851642610282187,
+    "AOD_660nm": 0.42978958350037555,
+    "AOD_860nm": 0.1532806338513237,
+    "fire_count": 5,
+    "fire_confidence": 0.5919240469694397,
+    "land_cover": "2",
+    "platform": "MODIS_Terra"
+  },
+  {
+    "date": "2025-07-29T12:29:01.277160",
+    "product_type": "L2__NO2___",
+    "area": {
+      "north": 29.2041,
+      "south": 28.2041,
+      "east": 77.6025,
+      "west": 76.6025
+    },
+    "NO2_mean": 18.330808703144278,
+    "NO2_max": 58.6348880066448,
+    "AER_AI_mean": 0.7761942240406856,
+    "CO_mean": 114.81218823383627,
+    "HCHO_mean": 20.950897792862712,
+    "SO2_mean": 4.641542886663195,
+    "CH4_mean": 1922.5600981562245,
+    "cloud_cover": 11.510990353893808,
+    "processing_level": "L2",
+    "platform": "Sentinel-5P"
+  },
+  {
+    "date": "2025-07-29T12:29:01.277160",
+    "product_type": "MODIS_Terra_Aerosol_5km_Daily",
+    "area": {
+      "north": 29.2041,
+      "south": 28.2041,
+      "east": 77.6025,
+      "west": 76.6025
+    },
+    "AOD_550nm": 0.23869509481910509,
+    "AOD_660nm": 0.1890977711132694,
+    "AOD_860nm": 0.16095834888314772,
+    "fire_count": 6,
+    "fire_confidence": 0.5453251200433116,
+    "land_cover": "1",
+    "platform": "MODIS_Terra"
+  },
+  {
+    "date": "2025-07-31T12:29:01.277160",
+    "product_type": "L2__NO2___",
+    "area": {
+      "north": 29.2041,
+      "south": 28.2041,
+      "east": 77.6025,
+      "west": 76.6025
+    },
+    "NO2_mean": 19.15418643929454,
+    "NO2_max": 40.18937076143601,
+    "AER_AI_mean": 0.33555105045065425,
+    "CO_mean": 139.52267115688298,
+    "HCHO_mean": 4.148256977245504,
+    "SO2_mean": 1.6051031570814374,
+    "CH4_mean": 1797.4009714211934,
+    "cloud_cover": 27.704686037506335,
+    "processing_level": "L2",
+    "platform": "Sentinel-5P"
+  },
+  {
+    "date": "2025-07-31T12:29:01.277160",
+    "product_type": "MODIS_Terra_Aerosol_5km_Daily",
+    "area": {
+      "north": 29.2041,
+      "south": 28.2041,
+      "east": 77.6025,
+      "west": 76.6025
+    },
+    "AOD_550nm": 0.41170274206122126,
+    "AOD_660nm": 0.5872657208758107,
+    "AOD_860nm": 0.20703744729903287,
+    "fire_count": 6,
+    "fire_confidence": 0.5281883036269406,
+    "land_cover": "5",
+    "platform": "MODIS_Terra"
+  },
+  {
+    "date": "2025-08-02T12:29:01.277160",
+    "product_type": "L2__NO2___",
+    "area": {
+      "north": 29.2041,
+      "south": 28.2041,
+      "east": 77.6025,
+      "west": 76.6025
+    },
+    "NO2_mean": 21.273283117470708,
+    "NO2_max": 1.2929930437981696,
+    "AER_AI_mean": 0.6645783492905262,
+    "CO_mean": 148.68264750288301,
+    "HCHO_mean": 32.78794914725386,
+    "SO2_mean": 7.096492172692194,
+    "CH4_mean": 1833.632197911813,
+    "cloud_cover": 3.6331314909914747,
+    "processing_level": "L2",
+    "platform": "Sentinel-5P"
+  },
+  {
+    "date": "2025-08-02T12:29:01.277160",
+    "product_type": "MODIS_Terra_Aerosol_5km_Daily",
+    "area": {
+      "north": 29.2041,
+      "south": 28.2041,
+      "east": 77.6025,
+      "west": 76.6025
+    },
+    "AOD_550nm": 0.44206638782035645,
+    "AOD_660nm": 0.514581720812398,
+    "AOD_860nm": 0.21645593500182228,
+    "fire_count": 6,
+    "fire_confidence": 0.9259359540240493,
+    "land_cover": "4",
+    "platform": "MODIS_Terra"
+  },
+  {
+    "date": "2025-08-04T12:29:01.277160",
+    "product_type": "L2__NO2___",
+    "area": {
+      "north": 29.2041,
+      "south": 28.2041,
+      "east": 77.6025,
+      "west": 76.6025
+    },
+    "NO2_mean": 10.661374816664503,
+    "NO2_max": 75.13759659418719,
+    "AER_AI_mean": 0.12407343464245069,
+    "CO_mean": 121.08596213659908,
+    "HCHO_mean": 14.695365257111053,
+    "SO2_mean": 1.5490328281486652,
+    "CH4_mean": 2019.2608253203236,
+    "cloud_cover": 13.237255250943843,
+    "processing_level": "L2",
+    "platform": "Sentinel-5P"
+  },
+  {
+    "date": "2025-08-04T12:29:01.277160",
+    "product_type": "MODIS_Terra_Aerosol_5km_Daily",
+    "area": {
+      "north": 29.2041,
+      "south": 28.2041,
+      "east": 77.6025,
+      "west": 76.6025
+    },
+    "AOD_550nm": 0.052007126723435854,
+    "AOD_660nm": 0.050567087855557524,
+    "AOD_860nm": 0.22561384099434023,
+    "fire_count": 9,
+    "fire_confidence": 0.7183286199198656,
+    "land_cover": "4",
+    "platform": "MODIS_Terra"
+  },
+  {
+    "date": "2025-08-06T12:29:01.277160",
+    "product_type": "L2__NO2___",
+    "area": {
+      "north": 29.2041,
+      "south": 28.2041,
+      "east": 77.6025,
+      "west": 76.6025
+    },
+    "NO2_mean": 25.894034866684493,
+    "NO2_max": 54.94135108019606,
+    "AER_AI_mean": 0.28665290847168623,
+    "CO_mean": 145.70031634811332,
+    "HCHO_mean": 11.695806367099717,
+    "SO2_mean": 6.6182661051016805,
+    "CH4_mean": 1739.7685002175028,
+    "cloud_cover": 24.129653867996634,
+    "processing_level": "L2",
+    "platform": "Sentinel-5P"
+  },
+  {
+    "date": "2025-08-06T12:29:01.277160",
+    "product_type": "MODIS_Terra_Aerosol_5km_Daily",
+    "area": {
+      "north": 29.2041,
+      "south": 28.2041,
+      "east": 77.6025,
+      "west": 76.6025
+    },
+    "AOD_550nm": 0.25029222716310334,
+    "AOD_660nm": 0.3464675428335484,
+    "AOD_860nm": 0.16381192833329666,
+    "fire_count": 6,
+    "fire_confidence": 0.9866843198150307,
+    "land_cover": "5",
+    "platform": "MODIS_Terra"
+  },
+  {
+    "date": "2025-08-08T12:29:01.277160",
+    "product_type": "L2__NO2___",
+    "area": {
+      "north": 29.2041,
+      "south": 28.2041,
+      "east": 77.6025,
+      "west": 76.6025
+    },
+    "NO2_mean": 1.3220574463694632,
+    "NO2_max": 30.96522337211665,
+    "AER_AI_mean": 0.513880266786877,
+    "CO_mean": 102.62879902870934,
+    "HCHO_mean": -4.770998844951237,
+    "SO2_mean": 6.74496442372393,
+    "CH4_mean": 1606.9449716224715,
+    "cloud_cover": 17.894112391575668,
+    "processing_level": "L2",
+    "platform": "Sentinel-5P"
+  },
+  {
+    "date": "2025-08-08T12:29:01.277160",
+    "product_type": "MODIS_Terra_Aerosol_5km_Daily",
+    "area": {
+      "north": 29.2041,
+      "south": 28.2041,
+      "east": 77.6025,
+      "west": 76.6025
+    },
+    "AOD_550nm": 0.18904132381520117,
+    "AOD_660nm": 0.42732332052580707,
+    "AOD_860nm": 0.14662212673427572,
+    "fire_count": 4,
+    "fire_confidence": 0.6297426051938191,
+    "land_cover": "5",
+    "platform": "MODIS_Terra"
+  },
+  {
+    "date": "2025-08-10T12:29:01.277160",
+    "product_type": "L2__NO2___",
+    "area": {
+      "north": 29.2041,
+      "south": 28.2041,
+      "east": 77.6025,
+      "west": 76.6025
+    },
+    "NO2_mean": 11.243188147287144,
+    "NO2_max": 38.22573217105331,
+    "AER_AI_mean": 0.5828780586476527,
+    "CO_mean": 134.00278510928078,
+    "HCHO_mean": -6.367784499480948,
+    "SO2_mean": 2.0886726158111473,
+    "CH4_mean": 1877.4150908810063,
+    "cloud_cover": 24.368992761969253,
+    "processing_level": "L2",
+    "platform": "Sentinel-5P"
+  },
+  {
+    "date": "2025-08-10T12:29:01.277160",
+    "product_type": "MODIS_Terra_Aerosol_5km_Daily",
+    "area": {
+      "north": 29.2041,
+      "south": 28.2041,
+      "east": 77.6025,
+      "west": 76.6025
+    },
+    "AOD_550nm": 0.4941567069915248,
+    "AOD_660nm": 0.19705586203194106,
+    "AOD_860nm": 0.21106707987615353,
+    "fire_count": 8,
+    "fire_confidence": 0.9229350432895419,
+    "land_cover": "1",
+    "platform": "MODIS_Terra"
+  },
+  {
+    "date": "2025-08-12T12:29:01.277160",
+    "product_type": "L2__NO2___",
+    "area": {
+      "north": 29.2041,
+      "south": 28.2041,
+      "east": 77.6025,
+      "west": 76.6025
+    },
+    "NO2_mean": 0.9394149609376754,
+    "NO2_max": 59.942792254834764,
+    "AER_AI_mean": 0.2754051362448653,
+    "CO_mean": 113.46924031759974,
+    "HCHO_mean": 23.361000143189237,
+    "SO2_mean": 6.312693691919546,
+    "CH4_mean": 1833.1973577336526,
+    "cloud_cover": 1.4010424502865115,
+    "processing_level": "L2",
+    "platform": "Sentinel-5P"
+  },
+  {
+    "date": "2025-08-12T12:29:01.277160",
+    "product_type": "MODIS_Terra_Aerosol_5km_Daily",
+    "area": {
+      "north": 29.2041,
+      "south": 28.2041,
+      "east": 77.6025,
+      "west": 76.6025
+    },
+    "AOD_550nm": 0.5932864964298981,
+    "AOD_660nm": 0.2260160969528925,
+    "AOD_860nm": 0.1505276609585368,
+    "fire_count": 11,
+    "fire_confidence": 0.6919342384851145,
+    "land_cover": "4",
+    "platform": "MODIS_Terra"
+  },
+  {
+    "date": "2025-08-14T12:29:01.277160",
+    "product_type": "L2__NO2___",
+    "area": {
+      "north": 29.2041,
+      "south": 28.2041,
+      "east": 77.6025,
+      "west": 76.6025
+    },
+    "NO2_mean": 16.27103042760088,
+    "NO2_max": 60.54975041952915,
+    "AER_AI_mean": 0.6933415686693434,
+    "CO_mean": 114.98094696113299,
+    "HCHO_mean": 26.860154333046225,
+    "SO2_mean": 4.595294300230468,
+    "CH4_mean": 1754.377387687905,
+    "cloud_cover": 24.14026643069477,
+    "processing_level": "L2",
+    "platform": "Sentinel-5P"
+  },
+  {
+    "date": "2025-08-14T12:29:01.277160",
+    "product_type": "MODIS_Terra_Aerosol_5km_Daily",
+    "area": {
+      "north": 29.2041,
+      "south": 28.2041,
+      "east": 77.6025,
+      "west": 76.6025
+    },
+    "AOD_550nm": -0.030646565405404558,
+    "AOD_660nm": 0.4648352510846243,
+    "AOD_860nm": 0.1990313636091368,
+    "fire_count": 6,
+    "fire_confidence": 0.648708759887646,
+    "land_cover": "1",
+    "platform": "MODIS_Terra"
+  },
+  {
+    "date": "2025-08-16T12:29:01.277160",
+    "product_type": "L2__NO2___",
+    "area": {
+      "north": 29.2041,
+      "south": 28.2041,
+      "east": 77.6025,
+      "west": 76.6025
+    },
+    "NO2_mean": 18.42285343359573,
+    "NO2_max": 17.847817762370823,
+    "AER_AI_mean": 0.3098137480415466,
+    "CO_mean": 129.6792659808233,
+    "HCHO_mean": 1.32634167813187,
+    "SO2_mean": 4.553131697984481,
+    "CH4_mean": 1767.246590441419,
+    "cloud_cover": 20.826839385773113,
+    "processing_level": "L2",
+    "platform": "Sentinel-5P"
+  },
+  {
+    "date": "2025-08-16T12:29:01.277160",
+    "product_type": "MODIS_Terra_Aerosol_5km_Daily",
+    "area": {
+      "north": 29.2041,
+      "south": 28.2041,
+      "east": 77.6025,
+      "west": 76.6025
+    },
+    "AOD_550nm": 0.1024616475909012,
+    "AOD_660nm": 0.36937901965875997,
+    "AOD_860nm": 0.25646154761611634,
+    "fire_count": 3,
+    "fire_confidence": 0.9015874874162442,
+    "land_cover": "2",
+    "platform": "MODIS_Terra"
+  },
+  {
+    "date": "2025-08-18T12:29:01.277160",
+    "product_type": "L2__NO2___",
+    "area": {
+      "north": 29.2041,
+      "south": 28.2041,
+      "east": 77.6025,
+      "west": 76.6025
+    },
+    "NO2_mean": 21.03539586834544,
+    "NO2_max": 29.969371367723824,
+    "AER_AI_mean": 0.15975079263913805,
+    "CO_mean": 165.7023335031322,
+    "HCHO_mean": 14.517281223497271,
+    "SO2_mean": 4.665408271910184,
+    "CH4_mean": 1704.4700416852913,
+    "cloud_cover": 28.391724234629418,
+    "processing_level": "L2",
+    "platform": "Sentinel-5P"
+  },
+  {
+    "date": "2025-08-18T12:29:01.277160",
+    "product_type": "MODIS_Terra_Aerosol_5km_Daily",
+    "area": {
+      "north": 29.2041,
+      "south": 28.2041,
+      "east": 77.6025,
+      "west": 76.6025
+    },
+    "AOD_550nm": 0.580592302136495,
+    "AOD_660nm": 0.16825249056310032,
+    "AOD_860nm": 0.13293678789457233,
+    "fire_count": 3,
+    "fire_confidence": 0.9629790527247335,
+    "land_cover": "1",
+    "platform": "MODIS_Terra"
+  },
+  {
+    "date": "2025-08-20T12:29:01.277160",
+    "product_type": "L2__NO2___",
+    "area": {
+      "north": 29.2041,
+      "south": 28.2041,
+      "east": 77.6025,
+      "west": 76.6025
+    },
+    "NO2_mean": 19.788657481014717,
+    "NO2_max": 80.63835784530477,
+    "AER_AI_mean": 0.42291532584421754,
+    "CO_mean": 86.01034619489842,
+    "HCHO_mean": 18.002893917415925,
+    "SO2_mean": 5.040632116842254,
+    "CH4_mean": 1756.0815481279008,
+    "cloud_cover": 2.4200012929499906,
+    "processing_level": "L2",
+    "platform": "Sentinel-5P"
+  },
+  {
+    "date": "2025-08-20T12:29:01.277160",
+    "product_type": "MODIS_Terra_Aerosol_5km_Daily",
+    "area": {
+      "north": 29.2041,
+      "south": 28.2041,
+      "east": 77.6025,
+      "west": 76.6025
+    },
+    "AOD_550nm": -0.0467608347579464,
+    "AOD_660nm": 0.1704980180851109,
+    "AOD_860nm": -0.11329991178651583,
+    "fire_count": 3,
+    "fire_confidence": 0.6446580581323162,
+    "land_cover": "3",
+    "platform": "MODIS_Terra"
+  }
+]

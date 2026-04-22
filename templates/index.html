@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pollution Detection System API</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 40px;
+            font-size: 1.2em;
+        }
+        .endpoints {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .endpoint {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .method {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 0.9em;
+            margin-right: 10px;
+        }
+        .get { background: #2ecc71; color: white; }
+        .post { background: #f39c12; color: white; }
+        .endpoint-url {
+            font-family: monospace;
+            background: #ecf0f1;
+            padding: 5px 10px;
+            border-radius: 5px;
+            color: #2c3e50;
+        }
+        .description {
+            margin-top: 10px;
+            color: #7f8c8d;
+        }
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .feature {
+            background: #ecf0f1;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .feature-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        .feature h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .status {
+            text-align: center;
+            padding: 20px;
+            background: #d5f4e6;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .status h3 {
+            color: #27ae60;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌍 Pollution Detection System API</h1>
+        <p class="subtitle">Real-time monitoring of air and water pollution using GIS and Satellite Imagery</p>
+        
+        <div class="status">
+            <h3>✅ API Status: Healthy</h3>
+            <p>All systems operational and ready to process requests</p>
+        </div>
+
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">🛰️</div>
+                <h3>Satellite Data</h3>
+                <p>Sentinel-5P and MODIS data integration for comprehensive pollution monitoring</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🤖</div>
+                <h3>ML Predictions</h3>
+                <p>Advanced machine learning models for pollution forecasting and risk assessment</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🗺️</div>
+                <h3>GIS Analysis</h3>
+                <p>Spatial analysis and risk zone mapping with interactive visualizations</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🔥</div>
+                <h3>Crop Burning</h3>
+                <p>Impact modeling and analysis of agricultural burning effects</p>
+            </div>
+        </div>
+
+        <div class="endpoints">
+            <h2>📡 Available API Endpoints</h2>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="endpoint-url">/</span>
+                <div class="description">API information and available endpoints</div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="endpoint-url">/health</span>
+                <div class="description">Health check and system status</div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="endpoint-url">/cities</span>
+                <div class="description">List all available cities for monitoring</div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="endpoint-url">/data/{city}</span>
+                <div class="description">Get pollution data for a specific city</div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <span class="endpoint-url">/data/generate</span>
+                <div class="description">Generate sample data for demonstration</div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="endpoint-url">/satellite/{city}</span>
+                <div class="description">Get satellite data for a city</div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <span class="endpoint-url">/predict</span>
+                <div class="description">Make pollution predictions using ML models</div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="endpoint-url">/forecast/{city}</span>
+                <div class="description">Get pollution forecast for a city</div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="endpoint-url">/analysis/{city}</span>
+                <div class="description">Get comprehensive analysis results</div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="endpoint-url">/export/{city}</span>
+                <div class="description">Export data as GeoJSON</div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="endpoint-url">/crop-burning/{city}</span>
+                <div class="description">Get crop burning impact analysis</div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 40px; color: #7f8c8d;">
+            <p>Built with ❤️ for environmental monitoring and public health</p>
+            <p>Version 1.0.0 | Open Source</p>
+        </div>
+    </div>
+</body>
+</html>
