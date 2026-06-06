@@ -427,12 +427,11 @@ function setLoading(id, on){
   } else if(overlay){ overlay.remove(); }
 }
 
-function fadeInChart(id){
-  const el = document.getElementById(id);
-  if(!el) return;
-  el.classList.remove('fade-in');
-  void el.offsetWidth; // reflow
-  el.classList.add('fade-in');
+function corr(a,b){
+  const n = Math.min(a.length,b.length); if(n===0) return 0;
+  let ma=0, mb=0; for(let i=0;i<n;i++){ ma+=+a[i]||0; mb+=+b[i]||0; } ma/=n; mb/=n;
+  let num=0, da=0, db=0; for(let i=0;i<n;i++){ const va=(+a[i]||0)-ma; const vb=(+b[i]||0)-mb; num+=va*vb; da+=va*va; db+=vb*vb; }
+  return (da&&db) ? num/Math.sqrt(da*db) : 0;
 }
 
 function showInsights(city, data, analysis){
