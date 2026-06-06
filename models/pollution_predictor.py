@@ -6,6 +6,7 @@ Machine learning models for predicting PM2.5, NO2, and other pollutants
 import os
 import json
 import pickle
+import sys
 from datetime import datetime, timedelta
 from typing import Dict, List, Tuple, Optional, Union
 import numpy as np
@@ -20,9 +21,10 @@ import xgboost as xgb
 import joblib
 import logging
 
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+_parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _parent_dir not in sys.path:
+    sys.path.insert(0, _parent_dir)
+
 from config import PollutionConfig
 
 # Set up logging

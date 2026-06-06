@@ -6,6 +6,7 @@ Generates sample data for demonstration and testing purposes
 import os
 import json
 import random
+import sys
 from datetime import datetime, timedelta
 from typing import Dict, List, Tuple
 import numpy as np
@@ -14,14 +15,11 @@ import geopandas as gpd
 from shapely.geometry import Point, Polygon
 import logging
 
-import os
-import sys
-
 # Add parent directory to path for imports
-current_dir = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.dirname(current_dir)
-if parent_dir not in sys.path:
-    sys.path.insert(0, parent_dir)
+_current_dir = os.path.dirname(os.path.abspath(__file__))
+_parent_dir = os.path.dirname(_current_dir)
+if _parent_dir not in sys.path:
+    sys.path.insert(0, _parent_dir)
 
 from config import PollutionConfig
 
