@@ -7,6 +7,7 @@ import os
 import requests
 import json
 import xml.etree.ElementTree as ET
+import sys
 from datetime import datetime, timedelta
 from typing import Dict, List, Tuple, Optional
 import pandas as pd
@@ -18,9 +19,10 @@ import geopandas as gpd
 from shapely.geometry import box
 import logging
 
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+_parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _parent_dir not in sys.path:
+    sys.path.insert(0, _parent_dir)
+
 from config import PollutionConfig
 
 # Set up logging

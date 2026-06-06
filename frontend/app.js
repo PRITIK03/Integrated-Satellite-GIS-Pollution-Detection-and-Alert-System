@@ -237,23 +237,11 @@ function updateGISInfo(data){
   document.getElementById('gis-population').textContent = `${(Math.random() * 20 + 5).toFixed(1)}M`;
 }
 
-function plotlyLayout(extra={}){
-  const text = cssVar('--text') || '#1f2937';
-  const paper = 'rgba(0,0,0,0)';
-  return {
-    paper_bgcolor: paper,
-    plot_bgcolor: paper,
-    font:{color:text, family:'Inter, system-ui, sans-serif', size:12},
-    margin:{t:20,r:20,b:40,l:50},
-    showlegend: false,
-    hovermode: 'x unified',
-    ...extra
-  };
-}
-
-function plotPM25Time(data){
-  const dates = data.map(d=>d.date);
-  const pm25 = safe(data.map(d=>d['PM2.5']));
+function plotMiniCharts(data){
+  const recent = data.slice(-7);
+  const dates = recent.map(d=>d.date);
+  const pm25 = safe(recent.map(d=>d['PM2.5']));
+  const no2 = safe(recent.map(d=>d['NO2']));
   const pal = getPalette();
   if(!document.getElementById('pm25TimeChart')) return;
   Plotly.newPlot('pm25TimeChart', [{
