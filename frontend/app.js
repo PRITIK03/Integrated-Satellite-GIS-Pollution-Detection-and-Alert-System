@@ -1,23 +1,18 @@
 const API_BASE = "http://localhost:5000";
-// Feature flags for future real API integrations
 const USE_EXTERNAL_APIS = false;
 
-// Known city centers to ensure proper map focus (fallback if data lacks coords)
 const CITY_CENTERS = {
   'Delhi': [28.6139, 77.2090],
   'Mumbai': [19.0760, 72.8777],
   'Nagpur': [21.1458, 79.0882]
 };
 
-// External API adapter stubs (to be wired when keys/endpoints available)
 async function fetchExternalAQI(city){
   if(!USE_EXTERNAL_APIS) return null;
-  // TODO: implement real AQI API call and return unified format
   return null;
 }
 async function fetchExternalWeather(city){
   if(!USE_EXTERNAL_APIS) return null;
-  // TODO: implement real weather API call and return unified format
   return null;
 }
 
@@ -43,7 +38,6 @@ const els = {
 
 let map, markersLayer, legendControl, refreshTimer;
 
-// Palettes and theme helpers
 const PALETTES = {
   default: {
     series: ['#3b82f6','#ef4444','#10b981','#f59e0b','#8b5cf6'],
@@ -176,9 +170,9 @@ function initMap(){
 function jitteredPoints(lat, lon, n=24, radiusKm=15){
   const pts=[];
   for(let i=0;i<n;i++){
-    const r = radiusKm * (0.3 + Math.random()*0.7); // km
+    const r = radiusKm * (0.3 + Math.random()*0.7);
     const t = Math.random()*Math.PI*2;
-    const dx = (r/111) * Math.cos(t); // ~111 km per deg lat
+    const dx = (r/111) * Math.cos(t);
     const dy = (r/(111*Math.cos(lat*Math.PI/180))) * Math.sin(t);
     pts.push([lat+dy, lon+dx]);
   }
@@ -237,11 +231,17 @@ function updateGISInfo(data){
   document.getElementById('gis-population').textContent = `${(Math.random() * 20 + 5).toFixed(1)}M`;
 }
 
-function plotMiniCharts(data){
-  const recent = data.slice(-7);
-  const dates = recent.map(d=>d.date);
-  const pm25 = safe(recent.map(d=>d['PM2.5']));
-  const no2 = safe(recent.map(d=>d['NO2']));
+function fadeInChart(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.classList.remove('fade-in');
+  void el.offsetWidth;
+  el.classList.add('fade-in');
+}
+
+function plotPM25Time(data){
+  const dates = data.map(d=>d.date);
+  const pm25 = safe(data.map(d=>d['PM2.5']));
   const pal = getPalette();
   if(!document.getElementById('pm25TimeChart')) return;
   Plotly.newPlot('pm25TimeChart', [{
@@ -307,6 +307,13 @@ function plotCorrelation(data){
   ], plotlyLayout({xaxis:{title:'Weather'}, yaxis:{title:'PM2.5'}, showlegend:true}));
 }
 
+function corr(a,b){
+  const n = Math.min(a.length,b.length); if(n===0) return 0;
+  let ma=0, mb=0; for(let i=0;i<n;i++){ ma+=+a[i]||0; mb+=+b[i]||0; } ma/=n; mb/=n;
+  let num=0, da=0, db=0; for(let i=0;i<n;i++){ const va=(+a[i]||0)-ma; const vb=(+b[i]||0)-mb; num+=va*vb; da+=va*va; db+=vb*vb; }
+  return (da&&db) ? num/Math.sqrt(da*db) : 0;
+}
+
 function plotForecast(forecast){
   if(!document.getElementById('forecastChart')) return;
   let dates = [];
@@ -314,7 +321,6 @@ function plotForecast(forecast){
   let no2 = [];
 
   if(forecast && forecast.forecast){
-    // API returns object with forecast list? Try to parse common shapes
     const f = forecast.forecast;
     if(Array.isArray(f)){
       dates = f.map((d, i)=> d.date || d.day || i);
@@ -367,13 +373,6 @@ function plotAQIGauge(latest){
   Plotly.newPlot('aqiGauge', data, plotlyLayout());
 }
 
-function corr(a,b){
-  const n = Math.min(a.length,b.length); if(n===0) return 0;
-  let ma=0, mb=0; for(let i=0;i<n;i++){ ma+=+a[i]||0; mb+=+b[i]||0; } ma/=n; mb/=n;
-  let num=0, da=0, db=0; for(let i=0;i<n;i++){ const va=(+a[i]||0)-ma; const vb=(+b[i]||0)-mb; num+=va*vb; da+=va*va; db+=vb*vb; }
-  return (da&&db) ? num/Math.sqrt(da*db) : 0;
-}
-
 function plotMatrix(data){
   if(!document.getElementById('matrixChart')) return;
   const vars = ['PM2.5','NO2','CO','SO2','temperature','humidity','wind_speed'];
@@ -411,7 +410,6 @@ function plotRadar(latest){
   }], plotlyLayout({polar:{radialaxis:{visible:true,range:[0,100]}}}));
 }
 
-// Lightweight loading overlays for charts
 function setLoading(id, on){
   const el = document.getElementById(id);
   if(!el) return;
@@ -425,13 +423,6 @@ function setLoading(id, on){
       el.parentElement.appendChild(overlay);
     }
   } else if(overlay){ overlay.remove(); }
-}
-
-function corr(a,b){
-  const n = Math.min(a.length,b.length); if(n===0) return 0;
-  let ma=0, mb=0; for(let i=0;i<n;i++){ ma+=+a[i]||0; mb+=+b[i]||0; } ma/=n; mb/=n;
-  let num=0, da=0, db=0; for(let i=0;i<n;i++){ const va=(+a[i]||0)-ma; const vb=(+b[i]||0)-mb; num+=va*vb; da+=va*va; db+=vb*vb; }
-  return (da&&db) ? num/Math.sqrt(da*db) : 0;
 }
 
 function showInsights(city, data, analysis){
@@ -471,7 +462,6 @@ function initAnalyticsTabs(){
     Object.values(panes).forEach(id=>document.getElementById(id)?.classList.add('d-none'));
     const paneId = panes[target];
     if(paneId){ document.getElementById(paneId)?.classList.remove('d-none'); }
-    // Resize the active chart
     const el = document.querySelector(target);
     if(el){ try { Plotly.Plots.resize(el); } catch(_){} }
   });
@@ -516,10 +506,8 @@ async function refresh(){
   plotBox(data);
   fadeInChart('boxChart'); setLoading('boxChart',false);
 
-  // City insights
   showInsights(city, data, analysis);
 
-  // Weather KPIs from dataset
   if(data.length){
     const latest = data[data.length-1];
     els.kpiTemp.textContent = `${(latest.temperature ?? 26).toFixed(1)}°C`;
@@ -531,7 +519,6 @@ async function refresh(){
     els.kpiWind.textContent = `3.4 m/s`;
   }
 
-  // Ensure plots resize to their containers after refresh
   requestAnimationFrame(resizeAll);
 }
 
@@ -542,7 +529,6 @@ function scheduleRefresh(){
   }
 }
 
-// Fullscreen overlay for charts
 function openFullscreen(targetSelector){
   const target = document.querySelector(targetSelector);
   if(!target) return;
@@ -563,7 +549,6 @@ function openFullscreen(targetSelector){
     </div>`;
   document.body.appendChild(overlay);
   const container = overlay.querySelector('.chart-container');
-  // Move the chart node into overlay (and restore on close)
   const placeholder = document.createElement('div');
   placeholder.style.height = target.style.height;
   target.parentNode.insertBefore(placeholder, target);
@@ -590,7 +575,6 @@ function bindExpandButtons(){
   });
 }
 
-// Sidebar collapse/expand for more chart area
 function toggleSidebar(){
   if(!els.sidebarCol || !els.mainCol) return;
   const hidden = els.sidebarCol.style.display === 'none';
@@ -607,13 +591,11 @@ function toggleSidebar(){
 }
 
 function resizeAll(){
-  // Resize Plotly charts
   const chartIds = ['pm25TimeChart','no2TimeChart','forecastChart','riskPie','matrixChart','radarChart','boxChart','corrChart','pm25MiniChart','no2MiniChart','aqiGauge'];
   chartIds.forEach(id=>{
     const el = document.getElementById(id);
     if(el && el.children.length){ try { Plotly.Plots.resize(el); } catch(_){} }
   });
-  // Invalidate Leaflet map size
   if(map){ setTimeout(()=>{ map.invalidateSize(); }, 50); }
 }
 
@@ -644,7 +626,6 @@ async function init(){
   await refresh();
   scheduleRefresh();
 
-  // Global resize listener
   window.addEventListener('resize', ()=>{ resizeAll(); });
 }
 
