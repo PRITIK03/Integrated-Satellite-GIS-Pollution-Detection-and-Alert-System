@@ -85,7 +85,7 @@ def health_check():
     return jsonify({
         'status': 'healthy',
         'timestamp': datetime.now().isoformat(),
-        'config_valid': config.validate_config()
+        'config_valid': config.validate()[0]
     })
 
 

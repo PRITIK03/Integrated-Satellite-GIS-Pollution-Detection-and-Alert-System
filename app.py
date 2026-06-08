@@ -68,10 +68,8 @@ class PollutionDashboard:
     def __init__(self):
         self.config = PollutionConfig()
         self.config.create_directories()
-        self.satellite_processor = SatelliteDataProcessor()
         self.data_generator = SampleDataGenerator()
-        
-        # Initialize session state
+
         if 'data_loaded' not in st.session_state:
             st.session_state.data_loaded = False
         if 'current_city' not in st.session_state:

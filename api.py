@@ -24,7 +24,8 @@ def create_app() -> Flask:
 
 if __name__ == '__main__':
     config = PollutionConfig()
-    if not config.validate_config():
+    valid, _ = config.validate()
+    if not valid:
         logger.warning("Some API keys are missing. Some features may not work.")
 
     app = create_app()

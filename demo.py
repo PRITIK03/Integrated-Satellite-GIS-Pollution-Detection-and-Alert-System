@@ -41,7 +41,7 @@ def demo_configuration():
     print(f"📁 Cache directory: {config.CACHE_DIR}")
     
     # Validate configuration
-    is_valid = config.validate_config()
+    is_valid, _ = config.validate()
     if is_valid:
         print("✅ All required API keys are configured")
     else:

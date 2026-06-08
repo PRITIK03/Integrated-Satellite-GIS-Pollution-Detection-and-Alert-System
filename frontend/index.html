@@ -1,247 +1,234 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pollution Intelligence Dashboard</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="styles.css" />
-  <style>
-    .chart-lg {
-      width: 100%;
-      height: 500px;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pollution Detection System - GIS Dashboard</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<style>
+body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
+#header { background: #1a5276; color: white; padding: 15px 20px; }
+#header h1 { margin: 0; font-size: 22px; }
+#header .subtitle { font-size: 13px; opacity: 0.85; }
+#controls { background: #f8f9fa; padding: 12px 18px; border-bottom: 1px solid #ddd; }
+.control-row { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; flex-wrap: wrap; }
+.control-row label { font-weight: bold; font-size: 13px; }
+.control-row select, .control-row button { padding: 6px 10px; font-size: 13px; }
+button.primary { background: #2980b9; color: white; border: none; cursor: pointer; }
+button.primary:hover { background: #1f6690; }
+#map { height: 52vh; margin: 15px; border: 2px solid #bbb; border-radius: 4px; }
+.charts { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 0 15px 15px; }
+.chart-box { background: white; border: 1px solid #ccc; border-radius: 4px; padding: 10px; }
+.chart-box h3 { margin-top: 0; font-size: 15px; color: #333; }
+.pm25-chart, .no2-chart, .forecast-chart { height: 240px; }
+#status { padding: 8px 18px; font-size: 13px; color: #555; }
+.error { color: #c0392b; }
+.success { color: #27ae60; }
+.legend { background: white; padding: 6px 10px; font-size: 12px; border-radius: 4px; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
+</style>
 </head>
 <body>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3">
-    <a class="navbar-brand fw-bold" href="#">🌍 Pollution Intelligence</a>
-    <div class="ms-auto d-flex align-items-center gap-2">
-      <button id="sidebarToggle" class="btn btn-outline-light btn-sm" title="Toggle sidebar">Sidebar</button>
-      <select id="citySelect" class="form-select form-select-sm bg-dark text-light border-secondary"></select>
-      <select id="themeSelect" class="form-select form-select-sm bg-dark text-light border-secondary">
-        <option value="light">Light</option>
-        <option value="solar">Solarized</option>
-      </select>
-      <select id="paletteSelect" class="form-select form-select-sm bg-dark text-light border-secondary">
-        <option value="default">Default</option>
-        <option value="cool">Cool</option>
-        <option value="warm">Warm</option>
-        <option value="viridis">Viridis</option>
-        <option value="plasma">Plasma</option>
-      </select>
-      <button id="refreshBtn" class="btn btn-outline-light btn-sm">Refresh</button>
-    </div>
-  </nav>
+<div id="header">
+  <h1>🌍 Pollution Detection System</h1>
+  <div class="subtitle">Real-time monitoring of air and water pollution using GIS and Satellite Imagery</div>
+</div>
 
-  <main class="container-fluid py-3">
-    <div class="row g-3">
-      <div id="sidebarCol" class="col-12 col-xl-3">
-        <div class="card shadow-sm h-100">
-          <div class="card-body">
-            <h5 class="card-title">Overview</h5>
-            <div class="row g-2 kpis">
-              <div class="col-6">
-                <div class="kpi">
-                  <div class="kpi-label">PM2.5</div>
-                  <div id="kpi-pm25" class="kpi-value">--</div>
-                </div>
-              </div>
-              <div class="col-6">
-                <div class="kpi">
-                  <div class="kpi-label">NO2</div>
-                  <div id="kpi-no2" class="kpi-value">--</div>
-                </div>
-              </div>
-              <div class="col-6">
-                <div class="kpi">
-                  <div class="kpi-label">Risk</div>
-                  <div id="kpi-risk" class="kpi-value">--</div>
-                </div>
-              </div>
-              <div class="col-6">
-                <div class="kpi">
-                  <div class="kpi-label">Fire Count</div>
-                  <div id="kpi-fire" class="kpi-value">--</div>
-                </div>
-              </div>
-            </div>
+<div id="controls">
+  <div class="control-row">
+    <label>City:</label>
+    <select id="citySelect"></select>
+    <button class="primary" onclick="loadData()">Load Data</button>
+    <button class="primary" onclick="generateSampleData()">Generate Sample Data</button>
+  </div>
+  <div class="control-row">
+    <label>Time Window:</label>
+    <select id="windowSelect">
+      <option value="7">7 days</option>
+      <option value="14">14 days</option>
+      <option value="30" selected>30 days</option>
+    </select>
+    <span id="status"></span>
+  </div>
+</div>
 
-            <hr/>
-            <div class="mb-3">
-              <h6 class="text-muted mb-2">Weather</h6>
-              <div class="row g-2">
-                <div class="col-4"><div class="kpi"><div class="kpi-label">Temp</div><div id="kpi-temp" class="kpi-value">--</div></div></div>
-                <div class="col-4"><div class="kpi"><div class="kpi-label">Humidity</div><div id="kpi-hum" class="kpi-value">--</div></div></div>
-                <div class="col-4"><div class="kpi"><div class="kpi-label">Wind</div><div id="kpi-wind" class="kpi-value">--</div></div></div>
-              </div>
-            </div>
+<div id="map"></div>
 
-            <div class="mb-3">
-              <h6 class="text-muted mb-2">AQI Gauge</h6>
-              <div id="aqiGauge"></div>
-            </div>
+<div class="charts">
+  <div class="chart-box">
+    <h3>📈 PM2.5 Levels Over Time</h3>
+    <div id="pm25Chart" class="pm25-chart"></div>
+  </div>
+  <div class="chart-box">
+    <h3>📈 NO2 Levels Over Time</h3>
+    <div id="no2Chart" class="no2-chart"></div>
+  </div>
+  <div class="chart-box">
+    <h3>🔮 7-Day Forecast</h3>
+    <div id="forecastChart" class="forecast-chart"></div>
+  </div>
+  <div class="chart-box">
+    <h3>📊 Risk Distribution</h3>
+    <div id="riskChart" class="forecast-chart"></div>
+  </div>
+</div>
 
-            <div class="mb-3">
-              <h6 class="text-muted mb-2">PM2.5 Trend (7d)</h6>
-              <div id="pm25MiniChart" style="height: 120px;"></div>
-            </div>
+<script>
+const API = 'http://localhost:5000';
+let map, markersLayer;
+const CITY_COORDS = {
+  Delhi: [28.6139, 77.2090], Mumbai: [19.0760, 72.8777], Nagpur: [21.1458, 79.0882],
+  Beijing: [39.9042, 116.4074], Shanghai: [31.2304, 121.4737],
+  Los Angeles: [34.0522, -118.2437], New York: [40.7128, -74.0060],
+  London: [51.5074, -0.1278], Paris: [48.8566, 2.3522],
+  Tokyo: [35.6762, 139.6503], Sydney: [-33.8688, 151.2093]
+};
+const RISK_COLORS = { good: '#10b981', moderate: '#f59e0b', unhealthy: '#ef4444', very_unhealthy: '#8b5cf6', hazardous: '#000000' };
 
-            <div class="mb-3">
-              <h6 class="text-muted mb-2">NO2 Trend (7d)</h6>
-              <div id="no2MiniChart" style="height: 120px;"></div>
-            </div>
+function init() {
+  initMap();
+  loadCities();
+  document.getElementById('windowSelect').addEventListener('change', loadData);
+}
 
-            <div class="mb-3">
-              <h6 class="text-muted mb-2">GIS Info</h6>
-              <div class="small">
-                <div class="d-flex justify-content-between mb-1">
-                  <span>Coordinates:</span>
-                  <span id="gis-coords">--</span>
-                </div>
-                <div class="d-flex justify-content-between mb-1">
-                  <span>Elevation:</span>
-                  <span id="gis-elevation">--</span>
-                </div>
-                <div class="d-flex justify-content-between mb-1">
-                  <span>Land Cover:</span>
-                  <span id="gis-landcover">Urban</span>
-                </div>
-                <div class="d-flex justify-content-between">
-                  <span>Population:</span>
-                  <span id="gis-population">--</span>
-                </div>
-              </div>
-            </div>
+function initMap() {
+  map = L.map('map').setView([28.6139, 77.2090], 5);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
+  markersLayer = L.layerGroup().addTo(map);
 
-            <div class="mb-2 d-flex align-items-center gap-2">
-              <label for="windowDays" class="form-label m-0">Days</label>
-              <input type="range" id="windowDays" min="7" max="90" value="30" class="form-range flex-grow-1"/>
-              <span id="windowDaysLabel" class="text-muted small">30</span>
-            </div>
-            <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" id="autoRefresh" checked>
-              <label class="form-check-label" for="autoRefresh">Auto refresh (30s)</label>
-            </div>
-          </div>
-        </div>
-      </div>
+  const legend = L.control({position: 'bottomright'});
+  legend.onAdd = function() {
+    const div = L.DomUtil.create('div', 'legend');
+    div.innerHTML = '<strong>Risk</strong><br>' +
+      Object.entries(RISK_COLORS).map(([k, v]) =>
+        `<span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${v};margin-right:4px"></span>${k}`
+      ).join('<br>');
+    return div;
+  };
+  legend.addTo(map);
+}
 
-      <div id="mainCol" class="col-12 col-xl-9">
-        <div class="row g-3">
-          <div class="col-12">
-            <div class="card shadow-sm">
-              <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                  <h5 class="card-title mb-0">Interactive Map</h5>
-                  <button class="btn btn-sm btn-outline-primary expand-btn" data-target="#map">Expand</button>
-                </div>
-                <div id="map" class="map"></div>
-              </div>
-            </div>
-          </div>
+async function loadCities() {
+  try {
+    const res = await fetch(`${API}/cities`);
+    const data = await res.json();
+    const sel = document.getElementById('citySelect');
+    sel.innerHTML = '';
+    data.cities.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.name; opt.textContent = c.name; sel.appendChild(opt);
+    });
+    if (sel.options.length) loadData();
+  } catch (e) {
+    setStatus('Failed to load cities', 'error');
+  }
+}
 
-          <div class="col-12">
-            <div class="card shadow-sm h-100">
-              <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                  <h5 class="card-title mb-0">City Insights</h5>
-                </div>
-                <div id="insightsText" class="mt-2 small text-muted">Loading insights...</div>
-              </div>
-            </div>
-          </div>
+async function loadData() {
+  const city = document.getElementById('citySelect').value;
+  const days = document.getElementById('windowSelect').value;
+  if (!city) return;
+  setStatus('Loading...');
+  try {
+    const [dataRes, forecastRes, analysisRes] = await Promise.all([
+      fetch(`${API}/data/${encodeURIComponent(city)}?days=${days}`),
+      fetch(`${API}/forecast/${encodeURIComponent(city)}?forecast_days=7`),
+      fetch(`${API}/analysis/${encodeURIComponent(city)}?days=${days}`)
+    ]);
+    const data = dataRes.ok ? await dataRes.json() : {};
+    const forecast = forecastRes.ok ? await forecastRes.json() : {};
+    const analysis = analysisRes.ok ? await analysisRes.json() : {};
+    if (!dataRes.ok) throw new Error(data.error || 'Failed to load data');
+    updateMap(data.data || [], city);
+    updateCharts(data.data || [], forecast, analysis);
+    setStatus(`Loaded ${data.total_records} records`, 'success');
+  } catch (e) {
+    setStatus(e.message, 'error');
+  }
+}
 
-          <div class="col-12">
-            <div class="card shadow-sm h-100">
-              <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                  <h5 class="card-title mb-0">PM2.5 Levels Over Time</h5>
-                  <button class="btn btn-sm btn-outline-primary expand-btn" data-target="#pm25TimeChart">Expand</button>
-                </div>
-                <div id="pm25TimeChart" class="chart-lg"></div>
-              </div>
-            </div>
-          </div>
+function updateMap(data, city) {
+  markersLayer.clearLayers();
+  if (!map) return;
+  const center = CITY_COORDS[city] || [28.6, 77.2];
+  map.setView(center, 9);
+  data.forEach(d => {
+    const color = RISK_COLORS[d.risk_level] || '#999';
+    const marker = L.circleMarker([d.latitude, d.longitude], {
+      radius: 7, color, fillColor: color, fillOpacity: 0.6, weight: 1
+    }).bindPopup(`<b>${d.date}</b><br>PM2.5: ${d['PM2.5']?.toFixed(1)} µg/m³<br>NO2: ${d['NO2']?.toFixed(1)} ppb<br>Risk: ${d.risk_level}`);
+    markersLayer.addLayer(marker);
+  });
+  L.marker(center).addTo(markersLayer)
+   .bindPopup(`<b>${city}</b><br>Center`).openPopup();
+}
 
-          <div class="col-12">
-            <div class="card shadow-sm h-100">
-              <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                  <h5 class="card-title mb-0">NO2 Levels Over Time</h5>
-                  <button class="btn btn-sm btn-outline-primary expand-btn" data-target="#no2TimeChart">Expand</button>
-                </div>
-                <div id="no2TimeChart" class="chart-lg"></div>
-              </div>
-            </div>
-          </div>
+function updateCharts(data, forecast, analysis) {
+  Plotly.newPlot('pm25Chart', [{
+    x: data.map(d => d.date), y: data.map(d => d['PM2.5']),
+    mode: 'lines+markers', line: {color: '#3b82f6', width: 2}, marker: {size: 4}
+  }], {margin: {t: 15, r: 15, b: 35, l: 40}, xaxis: {title: 'Date'}, yaxis: {title: 'PM2.5 (µg/m³)'}});
+  Plotly.newPlot('no2Chart', [{
+    x: data.map(d => d.date), y: data.map(d => d['NO2']),
+    mode: 'lines+markers', line: {color: '#ef4444', width: 2}, marker: {size: 4}
+  }], {margin: {t: 15, r: 15, b: 35, l: 40}, xaxis: {title: 'Date'}, yaxis: {title: 'NO2 (ppb)'}});
 
-          <div class="col-12">
-            <div class="card shadow-sm h-100">
-              <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                  <h5 class="card-title mb-0">7-Day Forecast</h5>
-                  <div class="d-flex gap-2">
-                    <button id="downloadGeoJSON" class="btn btn-sm btn-outline-primary">Download GeoJSON</button>
-                    <button class="btn btn-sm btn-outline-primary expand-btn" data-target="#forecastChart">Expand</button>
-                  </div>
-                </div>
-                <div id="forecastChart" class="chart-lg"></div>
-              </div>
-            </div>
-          </div>
+  // Forecast
+  const f = forecast.forecast || {};
+  const dates = Object.keys(f);
+  const pm25 = dates.map(k => f[k]['PM2.5'] || 0);
+  const no2 = dates.map(k => f[k]['NO2'] || 0);
+  if (dates.length === 0) {
+    const today = new Date();
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(today); d.setDate(today.getDate() + i);
+      dates.push(d.toISOString().slice(0, 10));
+      pm25.push(0); no2.push(0);
+    }
+  }
+  Plotly.newPlot('forecastChart', [
+    {x: dates, y: pm25, name: 'PM2.5', mode: 'lines+markers'},
+    {x: dates, y: no2, name: 'NO2', mode: 'lines+markers'}
+  ], {margin: {t: 15, r: 15, b: 35, l: 40}, xaxis: {title: 'Date'}, yaxis: {title: 'Concentration'}});
 
-          <div class="col-12">
-            <div class="card shadow-sm h-100">
-              <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                  <h5 class="card-title mb-0">Analytics</h5>
-                </div>
-                <div class="mt-3">
-                  <ul class="nav nav-pills chart-tabs gap-2" id="analyticsTabs">
-                    <li class="nav-item"><button class="nav-link active" data-chart-target="#riskPie">Risk</button></li>
-                    <li class="nav-item"><button class="nav-link" data-chart-target="#matrixChart">Matrix</button></li>
-                    <li class="nav-item"><button class="nav-link" data-chart-target="#radarChart">Radar</button></li>
-                    <li class="nav-item"><button class="nav-link" data-chart-target="#boxChart">Distributions</button></li>
-                    <li class="nav-item"><button class="nav-link" data-chart-target="#corrChart">Weather Corr</button></li>
-                  </ul>
-                  <div class="mt-3 position-relative">
-                    <div id="riskPane" class="analytics-pane">
-                      <div class="d-flex justify-content-end mb-2"><button class="btn btn-sm btn-outline-primary expand-btn" data-target="#riskPie">Expand</button></div>
-                      <div id="riskPie" class="chart-lg"></div>
-                    </div>
-                    <div id="matrixPane" class="analytics-pane d-none">
-                      <div class="d-flex justify-content-end mb-2"><button class="btn btn-sm btn-outline-primary expand-btn" data-target="#matrixChart">Expand</button></div>
-                      <div id="matrixChart" class="chart-lg"></div>
-                    </div>
-                    <div id="radarPane" class="analytics-pane d-none">
-                      <div class="d-flex justify-content-end mb-2"><button class="btn btn-sm btn-outline-primary expand-btn" data-target="#radarChart">Expand</button></div>
-                      <div id="radarChart" class="chart-lg"></div>
-                    </div>
-                    <div id="boxPane" class="analytics-pane d-none">
-                      <div class="d-flex justify-content-end mb-2"><button class="btn btn-sm btn-outline-primary expand-btn" data-target="#boxChart">Expand</button></div>
-                      <div id="boxChart" class="chart-lg"></div>
-                    </div>
-                    <div id="corrPane" class="analytics-pane d-none">
-                      <div class="d-flex justify-content-end mb-2"><button class="btn btn-sm btn-outline-primary expand-btn" data-target="#corrChart">Expand</button></div>
-                      <div id="corrChart" class="chart-lg"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </main>
+  // Risk pie
+  const counts = {};
+  data.forEach(d => { const r = d.risk_level || 'unknown'; counts[r] = (counts[r] || 0) + 1; });
+  Plotly.newPlot('riskChart', [{
+    labels: Object.keys(counts), values: Object.values(counts), type: 'pie',
+    marker: {colors: Object.keys(counts).map(k => RISK_COLORS[k] || '#999')}
+  }], {margin: {t: 15, r: 15, b: 15, l: 15}});
+}
 
-  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="app.js"></script>
+async function generateSampleData() {
+  const city = document.getElementById('citySelect').value;
+  if (!city) return;
+  setStatus('Generating...');
+  try {
+    const res = await fetch(`${API}/data/generate`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ city, days: 30 })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Generate failed');
+    setStatus('Data generated', 'success');
+    loadData();
+  } catch (e) {
+    setStatus(e.message, 'error');
+  }
+}
+
+function setStatus(msg, type = '') {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = type;
+}
+
+window.addEventListener('load', init);
+</script>
 </body>
 </html>
