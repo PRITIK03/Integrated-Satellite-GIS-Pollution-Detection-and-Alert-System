@@ -56,6 +56,8 @@ def _area_for_city(city_info: Dict[str, float]) -> Dict[str, float]:
     }
 
 
+bp = Blueprint('api', __name__)
+
 
 @bp.route('/')
 def home():
