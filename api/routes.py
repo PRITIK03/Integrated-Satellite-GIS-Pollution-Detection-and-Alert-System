@@ -2,21 +2,64 @@
 API Routes Module - Modular Flask endpoints
 """
 
-from flask import Blueprint, request, jsonify, send_file
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional
-import pandas as pd
-import numpy as np
 import os
 import json
 import logging
+from datetime import datetime, timedelta
+from typing import Dict, List, Optional
+
+import pandas as pd
+import numpy as np
+from flask import Blueprint, request, jsonify, send_file
 
 from config import PollutionConfig
 from data_processing.satellite_data import SatelliteDataProcessor
 from models.pollution_predictor import PollutionPredictor
 from utils.data_generator import SampleDataGenerator
+from utils.risk import assess_risk_level
 
 logger = logging.getLogger(__name__)
+
+
+def _config() -> PollutionConfig:
+    return PollutionConfig()
+
+
+def _data_generator() -> SampleDataGenerator:
+    return SampleDataGenerator()
+
+
+def _city_exists(city: str, generator: SampleDataGenerator) -> Optional[dict]:
+    if city not in generator.cities:
+        return jsonify({'error': f'City {city} not found'}), 404, None
+    return None, None, generator.cities[city]
+
+
+def _load_pollution_file(city: str, config: PollutionConfig):
+    path = os.path.join(config.DATA_DIR, f'{city}_pollution_data.json')
+    if not os.path.exists(path):
+        return jsonify({'error': f'No data available for {city}. Generate data first.'}), 404, None
+    with open(path, 'r') as f:
+        data = json.load(f)
+    return None, None, pd.DataFrame(data)
+
+
+def _filter_by_days(df: pd.DataFrame, days: int) -> pd.DataFrame:
+    if days and days < len(df):
+        df['date'] = pd.to_datetime(df['date'])
+        end = df['date'].max()
+        df = df[df['date'] >= end - timedelta(days=days)].copy()
+    return df
+
+
+def _area_for_city(city_info: Dict[str, float]) -> Dict[str, float]:
+    lat, lon = city_info['lat'], city_info['lon']
+    return {
+        'north': lat + 0.5,
+        'south': lat - 0.5,
+        'east': lon + 0.5,
+        'west': lon - 0.5,
+    }
 
 def create_api_blueprint():
     """Create and configure the API blueprint with all routes"""
