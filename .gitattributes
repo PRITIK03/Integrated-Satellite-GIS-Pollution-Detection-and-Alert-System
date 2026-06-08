@@ -1,0 +1,28 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Python files should use LF
+*.py text eol=lf
+
+# JavaScript files should use LF
+*.js text eol=lf
+
+# Shell scripts should use LF
+*.sh text eol=lf
+
+# Config files should use LF
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.toml text eol=lf
+*.cfg text eol=lf
+*.ini text eol=lf
+
+# Binary files
+*.pkl binary
+*.model binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary

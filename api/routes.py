@@ -2,7 +2,7 @@
 API Routes Module - Modular Flask endpoints
 """
 
-from flask import request, jsonify, send_file
+from flask import Blueprint, request, jsonify, send_file
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 import pandas as pd
@@ -18,10 +18,8 @@ from utils.data_generator import SampleDataGenerator
 
 logger = logging.getLogger(__name__)
 
-api_bp = _get_blueprint()
-
-def _get_blueprint():
-    from flask import Blueprint
+def create_api_blueprint():
+    """Create and configure the API blueprint with all routes"""
     bp = Blueprint('api', __name__)
 
     @bp.route('/')
@@ -455,3 +453,5 @@ def _get_blueprint():
         return jsonify({'error': 'Internal server error'}), 500
 
     return bp
+
+api_bp = create_api_blueprint()

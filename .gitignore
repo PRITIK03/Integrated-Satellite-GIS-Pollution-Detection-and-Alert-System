@@ -2,6 +2,7 @@
 .env
 .env.local
 .env.*.local
+.env.example
 
 # Python cache
 __pycache__/
@@ -48,3 +49,15 @@ logs/
 credentials.json
 *.key
 *.pem
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Node modules (frontend)
+node_modules/
+
+# Build output
+*.min.js
+*.min.css
