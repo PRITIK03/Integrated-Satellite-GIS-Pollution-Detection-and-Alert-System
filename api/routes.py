@@ -365,3 +365,5 @@ def server_error(_error):
     return jsonify({'error': 'Internal server error'}), 500
 
 
+api_bp = bp
+
