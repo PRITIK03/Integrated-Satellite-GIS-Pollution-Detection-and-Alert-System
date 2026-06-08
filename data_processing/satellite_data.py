@@ -7,26 +7,22 @@ import os
 import requests
 import json
 import xml.etree.ElementTree as ET
-import sys
 from datetime import datetime, timedelta
-from typing import Dict, List, Tuple, Optional
-import pandas as pd
+from typing import Dict, List, Optional
+
 import numpy as np
+import pandas as pd
+import logging
+
 from sentinelsat import SentinelAPI, read_geojson, geojson_to_wkt
 import rasterio
 from rasterio.mask import mask
 import geopandas as gpd
 from shapely.geometry import box
-import logging
-
-_parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if _parent_dir not in sys.path:
-    sys.path.insert(0, _parent_dir)
 
 from config import PollutionConfig
+from utils.risk import RiskAssessor
 
-# Set up logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class SatelliteDataProcessor:

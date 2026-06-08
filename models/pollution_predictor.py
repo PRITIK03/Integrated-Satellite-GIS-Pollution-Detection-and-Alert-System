@@ -6,26 +6,23 @@ Machine learning models for predicting PM2.5, NO2, and other pollutants
 import os
 import json
 import pickle
-import sys
 from datetime import datetime, timedelta
-from typing import Dict, List, Tuple, Optional, Union
+from typing import Dict, List, Optional, Tuple, Union
+
 import numpy as np
 import pandas as pd
+import logging
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
-from sklearn.linear_model import LinearRegression, Ridge
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
-from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
+from sklearn.linear_model import Ridge
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from sklearn.pipeline import Pipeline
 import xgboost as xgb
 import joblib
-import logging
-
-_parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if _parent_dir not in sys.path:
-    sys.path.insert(0, _parent_dir)
 
 from config import PollutionConfig
+from utils.risk import RiskAssessor
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -355,52 +352,9 @@ class PollutionPredictor:
             return {}
     
     def _assess_risk_level(self, prediction: np.ndarray) -> str:
-        """Assess pollution risk level based on predictions"""
-        try:
-            pm25 = prediction[0] if prediction.size > 0 else 0
-            no2 = prediction[1] if prediction.size > 1 else 0
-            
-            # Use WHO guidelines from config
-            pm25_thresholds = self.config.POLLUTION_THRESHOLDS['PM2.5']
-            no2_thresholds = self.config.POLLUTION_THRESHOLDS['NO2']
-            
-            # Assess PM2.5 risk
-            if pm25 <= pm25_thresholds['good']:
-                pm25_risk = 'good'
-            elif pm25 <= pm25_thresholds['moderate']:
-                pm25_risk = 'moderate'
-            elif pm25 <= pm25_thresholds['unhealthy_sensitive']:
-                pm25_risk = 'unhealthy_sensitive'
-            elif pm25 <= pm25_thresholds['unhealthy']:
-                pm25_risk = 'unhealthy'
-            elif pm25 <= pm25_thresholds['very_unhealthy']:
-                pm25_risk = 'very_unhealthy'
-            else:
-                pm25_risk = 'hazardous'
-            
-            # Assess NO2 risk
-            if no2 <= no2_thresholds['good']:
-                no2_risk = 'good'
-            elif no2 <= no2_thresholds['moderate']:
-                no2_risk = 'moderate'
-            elif no2 <= no2_thresholds['unhealthy_sensitive']:
-                no2_risk = 'unhealthy_sensitive'
-            elif no2 <= no2_thresholds['unhealthy']:
-                no2_risk = 'unhealthy'
-            elif no2 <= no2_thresholds['very_unhealthy']:
-                no2_risk = 'very_unhealthy'
-            else:
-                no2_risk = 'hazardous'
-            
-            # Overall risk (take the worse of the two)
-            risk_levels = ['good', 'moderate', 'unhealthy_sensitive', 'unhealthy', 'very_unhealthy', 'hazardous']
-            overall_risk = max(risk_levels.index(pm25_risk), risk_levels.index(no2_risk))
-            
-            return risk_levels[overall_risk]
-            
-        except Exception as e:
-            logger.error(f"Error assessing risk level: {e}")
-            return 'unknown'
+        pm25 = prediction[0] if prediction.size > 0 else 0
+        no2 = prediction[1] if prediction.size > 1 else 0
+        return RiskAssessor(self.config.POLLUTION_THRESHOLDS).assess(pm25, no2)
     
     def save_model(self):
         """Save the trained model and scaler"""

@@ -22,6 +22,7 @@ if _parent_dir not in sys.path:
     sys.path.insert(0, _parent_dir)
 
 from config import PollutionConfig
+from utils.risk import RiskAssessor
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -280,44 +281,7 @@ class SampleDataGenerator:
         }
     
     def _assess_risk_level(self, pm25: float, no2: float) -> str:
-        """Assess overall pollution risk level"""
-        # Use WHO guidelines
-        pm25_thresholds = self.config.POLLUTION_THRESHOLDS['PM2.5']
-        no2_thresholds = self.config.POLLUTION_THRESHOLDS['NO2']
-        
-        # Assess PM2.5 risk
-        if pm25 <= pm25_thresholds['good']:
-            pm25_risk = 'good'
-        elif pm25 <= pm25_thresholds['moderate']:
-            pm25_risk = 'moderate'
-        elif pm25 <= pm25_thresholds['unhealthy_sensitive']:
-            pm25_risk = 'unhealthy_sensitive'
-        elif pm25 <= pm25_thresholds['unhealthy']:
-            pm25_risk = 'unhealthy'
-        elif pm25 <= pm25_thresholds['very_unhealthy']:
-            pm25_risk = 'very_unhealthy'
-        else:
-            pm25_risk = 'hazardous'
-        
-        # Assess NO2 risk
-        if no2 <= no2_thresholds['good']:
-            no2_risk = 'good'
-        elif no2 <= no2_thresholds['moderate']:
-            no2_risk = 'moderate'
-        elif no2 <= no2_thresholds['unhealthy_sensitive']:
-            no2_risk = 'unhealthy_sensitive'
-        elif no2 <= no2_thresholds['unhealthy']:
-            no2_risk = 'unhealthy'
-        elif no2 <= no2_thresholds['very_unhealthy']:
-            no2_risk = 'very_unhealthy'
-        else:
-            no2_risk = 'hazardous'
-        
-        # Overall risk (take the worse of the two)
-        risk_levels = ['good', 'moderate', 'unhealthy_sensitive', 'unhealthy', 'very_unhealthy', 'hazardous']
-        overall_risk = max(risk_levels.index(pm25_risk), risk_levels.index(no2_risk))
-        
-        return risk_levels[overall_risk]
+        return RiskAssessor(self.config.POLLUTION_THRESHOLDS).assess(pm25, no2)
     
     def generate_satellite_data(self, 
                                area: Dict[str, float],

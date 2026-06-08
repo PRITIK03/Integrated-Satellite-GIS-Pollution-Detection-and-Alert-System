@@ -1,9 +1,10 @@
 # Pollution Detection System - Data Exploration
 # This script provides comprehensive data exploration and analysis
 
-import sys
 import os
-sys.path.append('..')
+import sys
+from pathlib import Path
+import json
 
 import pandas as pd
 import numpy as np
@@ -12,13 +13,12 @@ import seaborn as sns
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-import json
 from datetime import datetime, timedelta
 
-# Import custom modules
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.append(str(PROJECT_ROOT))
+
 from config import PollutionConfig
 from utils.data_generator import SampleDataGenerator
 
@@ -32,20 +32,12 @@ def main():
     # Load configuration
     config = PollutionConfig()
     config.create_directories()
-    
-    print(f"Data directory: {config.DATA_DIR}")
-    print(f"Output directory: {config.OUTPUT_DIR}")
-    
-    # Initialize data generator
-    data_generator = SampleDataGenerator()
-    
-    # Generate sample data for Delhi
-    print("\nGenerating sample data for Delhi...")
-    files = data_generator.save_sample_data('Delhi', days=90)
+    generator = SampleDataGenerator()
+    files = generator.save_sample_data('Delhi', days=90)
+
+    data_file = PROJECT_ROOT / config.DATA_DIR / 'Delhi_pollution_data.json'
     print(f"Generated files: {files}")
-    
-    # Load pollution data
-    data_file = os.path.join(config.DATA_DIR, 'Delhi_pollution_data.json')
+    print(f"Data file path: {data_file}")
     
     with open(data_file, 'r') as f:
         pollution_data = json.load(f)

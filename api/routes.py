@@ -1,5 +1,5 @@
 """
-API Routes Module - Modular Flask endpoints
+API Routes Module - Modular Flask endpoints.
 """
 
 import os
@@ -16,39 +16,33 @@ from config import PollutionConfig
 from data_processing.satellite_data import SatelliteDataProcessor
 from models.pollution_predictor import PollutionPredictor
 from utils.data_generator import SampleDataGenerator
-from utils.risk import assess_risk_level
 
 logger = logging.getLogger(__name__)
 
 
-def _config() -> PollutionConfig:
+def _get_config() -> PollutionConfig:
     return PollutionConfig()
 
 
-def _data_generator() -> SampleDataGenerator:
+def _get_generator() -> SampleDataGenerator:
     return SampleDataGenerator()
 
 
-def _city_exists(city: str, generator: SampleDataGenerator) -> Optional[dict]:
-    if city not in generator.cities:
-        return jsonify({'error': f'City {city} not found'}), 404, None
-    return None, None, generator.cities[city]
-
-
-def _load_pollution_file(city: str, config: PollutionConfig):
+def _load_city_dataframe(city: str, config: PollutionConfig):
     path = os.path.join(config.DATA_DIR, f'{city}_pollution_data.json')
     if not os.path.exists(path):
-        return jsonify({'error': f'No data available for {city}. Generate data first.'}), 404, None
+        return None
     with open(path, 'r') as f:
         data = json.load(f)
-    return None, None, pd.DataFrame(data)
+    df = pd.DataFrame(data)
+    df['date'] = pd.to_datetime(df['date'])
+    return df
 
 
-def _filter_by_days(df: pd.DataFrame, days: int) -> pd.DataFrame:
-    if days and days < len(df):
-        df['date'] = pd.to_datetime(df['date'])
+def _apply_window(df: pd.DataFrame, window: int) -> pd.DataFrame:
+    if window and window < len(df):
         end = df['date'].max()
-        df = df[df['date'] >= end - timedelta(days=days)].copy()
+        df = df[df['date'] >= end - timedelta(days=window)].copy()
     return df
 
 
@@ -61,440 +55,311 @@ def _area_for_city(city_info: Dict[str, float]) -> Dict[str, float]:
         'west': lon - 0.5,
     }
 
-def create_api_blueprint():
-    """Create and configure the API blueprint with all routes"""
-    bp = Blueprint('api', __name__)
 
-    @bp.route('/')
-    def home():
-        """Home endpoint"""
-        return jsonify({
-            'message': 'Pollution Detection System API',
-            'version': '1.0.0',
-            'endpoints': {
-                'GET /': 'API information',
-                'GET /health': 'Health check',
-                'GET /cities': 'List available cities',
-                'GET /data/<city>': 'Get pollution data for a city',
-                'POST /data/generate': 'Generate sample data',
-                'GET /satellite/<city>': 'Get satellite data for a city',
-                'POST /predict': 'Make pollution predictions',
-                'GET /forecast/<city>': 'Get pollution forecast',
-                'GET /analysis/<city>': 'Get analysis results',
-                'GET /export/<city>': 'Export data as GeoJSON'
-            }
-        })
 
-    @bp.route('/health')
-    def health_check():
-        """Health check endpoint"""
-        config = PollutionConfig()
-        return jsonify({
-            'status': 'healthy',
-            'timestamp': datetime.now().isoformat(),
-            'config_valid': config.validate_config()
-        })
+@bp.route('/')
+def home():
+    return jsonify({
+        'message': 'Pollution Detection System API',
+        'version': '1.0.0',
+        'endpoints': {
+            'GET /': 'API information',
+            'GET /health': 'Health check',
+            'GET /cities': 'List available cities',
+            'GET /data/<city>': 'Get pollution data for a city',
+            'POST /data/generate': 'Generate sample data',
+            'GET /satellite/<city>': 'Get satellite data for a city',
+            'POST /predict': 'Make pollution predictions',
+            'GET /forecast/<city>': 'Get pollution forecast',
+            'GET /analysis/<city>': 'Get analysis results',
+            'GET /export/<city>': 'Export data as GeoJSON'
+        }
+    })
 
-    @bp.route('/cities')
-    def get_cities():
-        """Get list of available cities"""
-        try:
-            data_generator = SampleDataGenerator()
-            cities = []
-            for city, info in data_generator.cities.items():
-                cities.append({
-                    'name': city,
-                    'country': info['country'],
-                    'latitude': info['lat'],
-                    'longitude': info['lon']
-                })
-            
-            return jsonify({
-                'cities': cities,
-                'total': len(cities)
-            })
-        except Exception as e:
-            logger.error(f"Error getting cities: {e}")
-            return jsonify({'error': str(e)}), 500
 
-    @bp.route('/data/<city>')
-    def get_pollution_data(city: str):
-        """Get pollution data for a specific city"""
-        try:
-            days = request.args.get('days', 30, type=int)
-            format_type = request.args.get('format', 'json')
-            
-            data_generator = SampleDataGenerator()
-            config = PollutionConfig()
-            
-            if city not in data_generator.cities:
-                return jsonify({'error': f'City {city} not found'}), 404
-            
-            data_file = os.path.join(config.DATA_DIR, f'{city}_pollution_data.json')
-            
-            if not os.path.exists(data_file):
-                return jsonify({'error': f'No data available for {city}. Generate data first.'}), 404
-            
-            with open(data_file, 'r') as f:
-                data = json.load(f)
-            
-            df = pd.DataFrame(data)
-            df['date'] = pd.to_datetime(df['date'])
-            
-            if days and days < len(df):
-                end_date = df['date'].max()
-                start_date = end_date - timedelta(days=days)
-                df = df[df['date'] >= start_date]
-            
-            filtered_data = df.to_dict('records')
-            
-            if format_type == 'csv':
-                csv_data = df.to_csv(index=False)
-                return csv_data, 200, {'Content-Type': 'text/csv'}
-            else:
-                return jsonify({
-                    'city': city,
-                    'data': filtered_data,
-                    'total_records': len(filtered_data),
-                    'date_range': {
-                        'start': df['date'].min().isoformat() if not df.empty else None,
-                        'end': df['date'].max().isoformat() if not df.empty else None
-                    }
-                })
-                
-        except Exception as e:
-            logger.error(f"Error getting pollution data: {e}")
-            return jsonify({'error': str(e)}), 500
+@bp.route('/health')
+def health_check():
+    config = _get_config()
+    return jsonify({
+        'status': 'healthy',
+        'timestamp': datetime.now().isoformat(),
+        'config_valid': config.validate_config()
+    })
 
-    @bp.route('/data/generate', methods=['POST'])
-    def generate_sample_data():
-        """Generate sample data for a city"""
-        try:
-            data = request.get_json()
-            city = data.get('city', 'Delhi')
-            days = data.get('days', 30)
-            
-            data_generator = SampleDataGenerator()
-            
-            if city not in data_generator.cities:
-                return jsonify({'error': f'City {city} not found'}), 400
-            
-            files = data_generator.save_sample_data(city, days)
-            
-            if files:
-                return jsonify({
-                    'message': f'Sample data generated for {city}',
-                    'files': files,
-                    'city': city,
-                    'days': days
-                })
-            else:
-                return jsonify({'error': 'Failed to generate data'}), 500
-                
-        except Exception as e:
-            logger.error(f"Error generating sample data: {e}")
-            return jsonify({'error': str(e)}), 500
 
-    @bp.route('/satellite/<city>')
-    def get_satellite_data(city: str):
-        """Get satellite data for a city"""
-        try:
-            data_generator = SampleDataGenerator()
-            
-            if city not in data_generator.cities:
-                return jsonify({'error': f'City {city} not found'}), 404
-            
-            city_info = data_generator.cities[city]
-            area = {
-                'north': city_info['lat'] + 0.5,
-                'south': city_info['lat'] - 0.5,
-                'east': city_info['lon'] + 0.5,
-                'west': city_info['lon'] - 0.5
-            }
-            
-            days = request.args.get('days', 30, type=int)
-            end_date = datetime.now()
-            start_date = end_date - timedelta(days=days)
-            
-            satellite_data = data_generator.generate_satellite_data(
-                area, start_date, end_date, num_samples=days//2
-            )
-            
-            return jsonify({
-                'city': city,
-                'area': area,
-                'satellite_data': satellite_data,
-                'total_records': len(satellite_data),
-                'date_range': {
-                    'start': start_date.isoformat(),
-                    'end': end_date.isoformat()
-                }
-            })
-            
-        except Exception as e:
-            logger.error(f"Error getting satellite data: {e}")
-            return jsonify({'error': str(e)}), 500
+@bp.route('/cities')
+def cities():
+    generator = _get_generator()
+    payload = [
+        {
+            'name': city,
+            'country': info['country'],
+            'latitude': info['lat'],
+            'longitude': info['lon'],
+        }
+        for city, info in generator.cities.items()
+    ]
+    return jsonify({'cities': payload, 'total': len(payload)})
 
-    @bp.route('/predict', methods=['POST'])
-    def make_predictions():
-        """Make pollution predictions using ML models"""
-        try:
-            data = request.get_json()
-            city = data.get('city', 'Delhi')
-            model_type = data.get('model_type', 'random_forest')
-            forecast_days = data.get('forecast_days', 7)
-            
-            data_generator = SampleDataGenerator()
-            config = PollutionConfig()
-            
-            if city not in data_generator.cities:
-                return jsonify({'error': f'City {city} not found'}), 400
-            
-            data_file = os.path.join(config.DATA_DIR, f'{city}_pollution_data.json')
-            if not os.path.exists(data_file):
-                return jsonify({'error': f'No data available for {city}. Generate data first.'}), 404
-            
-            with open(data_file, 'r') as f:
-                pollution_data = json.load(f)
-            
-            predictor = PollutionPredictor(model_type)
-            features, targets = predictor.prepare_features(pollution_data)
-            
-            if features.size == 0:
-                return jsonify({'error': 'Could not prepare features for ML model'}), 400
-            
-            training_results = predictor.train_model(features, targets)
-            
-            if not training_results:
-                return jsonify({'error': 'Failed to train model'}), 500
-            
-            forecast = predictor.forecast_pollution(features, forecast_days)
-            
-            return jsonify({
-                'city': city,
-                'model_type': model_type,
-                'training_results': training_results,
-                'forecast': forecast,
-                'forecast_days': forecast_days
-            })
-            
-        except Exception as e:
-            logger.error(f"Error making predictions: {e}")
-            return jsonify({'error': str(e)}), 500
 
-    @bp.route('/forecast/<city>')
-    def get_forecast(city: str):
-        """Get pollution forecast for a city"""
-        try:
-            model_type = request.args.get('model_type', 'random_forest')
-            forecast_days = request.args.get('forecast_days', 7, type=int)
-            
-            data_generator = SampleDataGenerator()
-            config = PollutionConfig()
-            
-            if city not in data_generator.cities:
-                return jsonify({'error': f'City {city} not found'}), 404
-            
-            data_file = os.path.join(config.DATA_DIR, f'{city}_pollution_data.json')
-            if not os.path.exists(data_file):
-                return jsonify({'error': f'No data available for {city}. Generate data first.'}), 404
-            
-            with open(data_file, 'r') as f:
-                pollution_data = json.load(f)
-            
-            predictor = PollutionPredictor(model_type)
-            features, targets = predictor.prepare_features(pollution_data)
-            
-            if features.size == 0:
-                return jsonify({'error': 'Could not prepare features for ML model'}), 400
-            
-            training_results = predictor.train_model(features, targets)
-            
-            if not training_results:
-                return jsonify({'error': 'Failed to train model'}), 500
-            
-            forecast = predictor.forecast_pollution(features, forecast_days)
-            
-            return jsonify({
-                'city': city,
-                'model_type': model_type,
-                'forecast': forecast,
-                'forecast_days': forecast_days,
-                'model_performance': training_results
-            })
-            
-        except Exception as e:
-            logger.error(f"Error getting forecast: {e}")
-            return jsonify({'error': str(e)}), 500
+@bp.route('/data/<city>')
+def city_data(city: str):
+    generator = _get_generator()
+    if city not in generator.cities:
+        return jsonify({'error': f'City {city} not found'}), 404
 
-    @bp.route('/analysis/<city>')
-    def get_analysis(city: str):
-        """Get comprehensive analysis results for a city"""
-        try:
-            days = request.args.get('days', 30, type=int)
-            
-            data_generator = SampleDataGenerator()
-            config = PollutionConfig()
-            
-            if city not in data_generator.cities:
-                return jsonify({'error': f'City {city} not found'}), 404
-            
-            data_file = os.path.join(config.DATA_DIR, f'{city}_pollution_data.json')
-            if not os.path.exists(data_file):
-                return jsonify({'error': f'No data available for {city}. Generate data first.'}), 404
-            
-            with open(data_file, 'r') as f:
-                pollution_data = json.load(f)
-            
-            df = pd.DataFrame(pollution_data)
-            df['date'] = pd.to_datetime(df['date'])
-            
-            if days and days < len(df):
-                end_date = df['date'].max()
-                start_date = end_date - timedelta(days=days)
-                df = df[df['date'] >= start_date]
-            
-            analysis_results = {
-                'city': city,
-                'total_records': len(df),
-                'date_range': {
-                    'start': df['date'].min().isoformat() if not df.empty else None,
-                    'end': df['date'].max().isoformat() if not df.empty else None
-                },
-                'pollution_statistics': {
-                    'PM2.5': {
-                        'mean': float(df['PM2.5'].mean()) if not df.empty else 0,
-                        'max': float(df['PM2.5'].max()) if not df.empty else 0,
-                        'min': float(df['PM2.5'].min()) if not df.empty else 0,
-                        'std': float(df['PM2.5'].std()) if not df.empty else 0
-                    },
-                    'NO2': {
-                        'mean': float(df['NO2'].mean()) if not df.empty else 0,
-                        'max': float(df['NO2'].max()) if not df.empty else 0,
-                        'min': float(df['NO2'].min()) if not df.empty else 0,
-                        'std': float(df['NO2'].std()) if not df.empty else 0
-                    }
-                },
-                'weather_statistics': {
-                    'temperature': {
-                        'mean': float(df['temperature'].mean()) if not df.empty else 0,
-                        'max': float(df['temperature'].max()) if not df.empty else 0,
-                        'min': float(df['temperature'].min()) if not df.empty else 0
-                    },
-                    'humidity': {
-                        'mean': float(df['humidity'].mean()) if not df.empty else 0,
-                        'max': float(df['humidity'].max()) if not df.empty else 0,
-                        'min': float(df['humidity'].min()) if not df.empty else 0
-                    }
-                },
-                'risk_level_distribution': df['risk_level'].value_counts().to_dict() if not df.empty else {},
-                'fire_statistics': {
-                    'total_fires': int(df['fire_count'].sum()) if not df.empty else 0,
-                    'avg_fires_per_day': float(df['fire_count'].mean()) if not df.empty else 0,
-                    'max_fires_in_day': int(df['fire_count'].max()) if not df.empty else 0
-                }
-            }
-            
-            if len(df) >= 7:
-                df['PM2.5_rolling_mean'] = df['PM2.5'].rolling(window=7).mean()
-                df['PM2.5_rolling_std'] = df['PM2.5'].rolling(window=7).std()
-                df['NO2_rolling_mean'] = df['NO2'].rolling(window=7).mean()
-                df['NO2_rolling_std'] = df['NO2'].rolling(window=7).std()
-                
-                df['PM2.5_anomaly'] = np.abs(df['PM2.5'] - df['PM2.5_rolling_mean']) > 2 * df['PM2.5_rolling_std']
-                df['NO2_anomaly'] = np.abs(df['NO2'] - df['NO2_rolling_mean']) > 2 * df['NO2_rolling_std']
-                
-                analysis_results['anomaly_analysis'] = {
-                    'PM2.5_anomalies': int(df['PM2.5_anomaly'].sum()),
-                    'NO2_anomalies': int(df['NO2_anomaly'].sum()),
-                    'total_anomalies': int((df['PM2.5_anomaly'] | df['NO2_anomaly']).sum())
-                }
-            
-            return jsonify(analysis_results)
-            
-        except Exception as e:
-            logger.error(f"Error getting analysis: {e}")
-            return jsonify({'error': str(e)}), 500
+    window = request.args.get('days', 30, type=int)
+    fmt = request.args.get('format', 'json')
 
-    @bp.route('/export/<city>')
-    def export_data(city: str):
-        """Export data as GeoJSON"""
-        try:
-            format_type = request.args.get('format', 'geojson')
-            
-            data_generator = SampleDataGenerator()
-            config = PollutionConfig()
-            
-            if city not in data_generator.cities:
-                return jsonify({'error': f'City {city} not found'}), 404
-            
-            geojson_file = os.path.join(config.DATA_DIR, f'{city}_pollution_data.geojson')
-            
-            if not os.path.exists(geojson_file):
-                return jsonify({'error': f'No GeoJSON data available for {city}. Generate data first.'}), 404
-            
-            return send_file(geojson_file, as_attachment=True)
-            
-        except Exception as e:
-            logger.error(f"Error exporting data: {e}")
-            return jsonify({'error': str(e)}), 500
+    config = _get_config()
+    df = _load_city_dataframe(city, config)
+    if df is None:
+        return jsonify({'error': f'No data available for {city}. Generate data first.'}), 404
 
-    @bp.route('/crop-burning/<city>')
-    def get_crop_burning_analysis(city: str):
-        """Get crop burning impact analysis for a city"""
-        try:
-            data_generator = SampleDataGenerator()
-            satellite_processor = SatelliteDataProcessor()
-            config = PollutionConfig()
-            
-            if city not in data_generator.cities:
-                return jsonify({'error': f'City {city} not found'}), 404
-            
-            city_info = data_generator.cities[city]
-            area = {
-                'north': city_info['lat'] + 0.5,
-                'south': city_info['lat'] - 0.5,
-                'east': city_info['lon'] + 0.5,
-                'west': city_info['lon'] - 0.5
-            }
-            
-            days = request.args.get('days', 30, type=int)
-            end_date = datetime.now()
-            start_date = end_date - timedelta(days=days)
-            
-            fire_data = data_generator.generate_satellite_data(
-                area, start_date, end_date, num_samples=days//2
-            )
-            
-            crop_burning_analysis = satellite_processor.process_crop_burning_data(
-                fire_data[0] if fire_data else {}, area, days
-            )
-            
-            return jsonify({
-                'city': city,
-                'area': area,
-                'crop_burning_analysis': crop_burning_analysis,
-                'fire_data': fire_data,
-                'date_range': {
-                    'start': start_date.isoformat(),
-                    'end': end_date.isoformat()
-                }
-            })
-            
-        except Exception as e:
-            logger.error(f"Error getting crop burning analysis: {e}")
-            return jsonify({'error': str(e)}), 500
+    df = _apply_window(df, window)
+    records = df.to_dict('records')
 
-    @bp.errorhandler(404)
-    def not_found(error):
-        """Handle 404 errors"""
-        return jsonify({'error': 'Endpoint not found'}), 404
+    if fmt == 'csv':
+        return df.to_csv(index=False), 200, {'Content-Type': 'text/csv'}
 
-    @bp.errorhandler(500)
-    def internal_error(error):
-        """Handle 500 errors"""
-        return jsonify({'error': 'Internal server error'}), 500
+    return jsonify({
+        'city': city,
+        'data': records,
+        'total_records': len(records),
+        'date_range': {
+            'start': df['date'].min().isoformat() if not df.empty else None,
+            'end': df['date'].max().isoformat() if not df.empty else None,
+        },
+    })
 
-    return bp
 
-api_bp = create_api_blueprint()
+@bp.route('/data/generate', methods=['POST'])
+def generate():
+    payload = request.get_json() or {}
+    city = payload.get('city', 'Delhi')
+    days = payload.get('days', 30)
+
+    generator = _get_generator()
+    if city not in generator.cities:
+        return jsonify({'error': f'City {city} not found'}), 400
+
+    files = generator.save_sample_data(city, days)
+    if not files:
+        return jsonify({'error': 'Failed to generate data'}), 500
+
+    return jsonify({
+        'message': f'Sample data generated for {city}',
+        'files': files,
+        'city': city,
+        'days': days,
+    })
+
+
+@bp.route('/satellite/<city>')
+def satellite_data(city: str):
+    generator = _get_generator()
+    if city not in generator.cities:
+        return jsonify({'error': f'City {city} not found'}), 404
+
+    window = request.args.get('days', 30, type=int)
+    now = datetime.now()
+    start = now - timedelta(days=window)
+
+    area = _school_for_city(generator.cities[city])
+    records = generator.generate_satellite_data(area, start, now, num_samples=window // 2)
+
+    return jsonify({
+        'city': city,
+        'area': area,
+        'satellite_data': records,
+        'total_records': len(records),
+        'date_range': {
+            'start': start.isoformat(),
+            'end': now.isoformat(),
+        },
+    })
+
+
+@bp.route('/predict', methods=['POST'])
+def predict():
+    payload = request.get_json() or {}
+    city = payload.get('city', 'Delhi')
+    model_type = payload.get('model_type', 'random_forest')
+    forecast_days = payload.get('forecast_days', 7)
+
+    generator = _get_generator()
+    if city not in generator.cities:
+        return jsonify({'error': f'City {city} not found'}), 400
+
+    config = _get_config()
+    df = _load_city_dataframe(city, config)
+    if df is None:
+        return jsonify({'error': f'No data available for {city}. Generate data first.'}), 404
+
+    predictor = PollutionPredictor(model_type)
+    features, targets = predictor.prepare_features(df.to_dict('records'))
+    if features.size == 0:
+        return jsonify({'error': 'Could not prepare features for ML model'}), 400
+
+    training = predictor.train_model(features, targets)
+    if not training:
+        return jsonify({'error': 'Failed to train model'}), 500
+
+    forecast = predictor.forecast_pollution(features, forecast_days)
+    return jsonify({
+        'city': city,
+        'model_type': model_type,
+        'training_results': training,
+        'forecast': forecast,
+        'forecast_days': forecast_days,
+    })
+
+
+@bp.route('/forecast/<city>')
+def forecast(city: str):
+    model_type = request.args.get('model_type', 'random_forest')
+    forecast_days = request.args.get('forecast_days', 7, type=int)
+
+    generator = _get_generator()
+    if city not in generator.cities:
+        return jsonify({'error': f'City {city} not found'}), 404
+
+    config = _get_config()
+    df = _load_city_dataframe(city, config)
+    if df is None:
+        return jsonify({'error': f'No data available for {city}. Generate data first.'}), 404
+
+    predictor = PollutionPredictor(model_type)
+    features, targets = predictor.prepare_features(df.to_dict('records'))
+    if features.size == 0:
+        return jsonify({'error': 'Could not prepare features for ML model'}), 400
+
+    training = predictor.train_model(features, targets)
+    if not training:
+        return jsonify({'error': 'Failed to train model'}), 500
+
+    result = predictor.forecast_pollution(features, forecast_days)
+    return jsonify({
+        'city': city,
+        'model_type': model_type,
+        'forecast': result,
+        'forecast_days': forecast_days,
+        'model_performance': training,
+    })
+
+
+@bp.route('/analysis/<city>')
+def analysis(city: str):
+    window = request.args.get('days', 30, type=int)
+
+    generator = _get_generator()
+    if city not in generator.cities:
+        return jsonify({'error': f'City {city} not found'}), 404
+
+    config = _get_config()
+    df = _load_city_dataframe(city, config)
+    if df is None:
+        return jsonify({'error': f'No data available for {city}. Generate data first.'}), 404
+
+    df = _apply_window(df, window)
+    df['date'] = pd.to_datetime(df['date'])
+
+    def series_stats(series):
+        if df.empty:
+            return {'mean': 0, 'max': 0, 'min': 0, 'std': 0}
+        return {
+            'mean': float(series.mean()),
+            'max': float(series.max()),
+            'min': float(series.min()),
+            'std': float(series.std()),
+        }
+
+    result = {
+        'city': city,
+        'total_records': len(df),
+        'date_range': {
+            'start': df['date'].min().isoformat() if not df.empty else None,
+            'end': df['date'].max().isoformat() if not df.empty else None,
+        },
+        'pollution_statistics': {
+            'PM2.5': series_stats(df['PM2.5']),
+            'NO2': series_stats(df['NO2']),
+        },
+        'weather_statistics': {
+            'temperature': series_stats(df['temperature']),
+            'humidity': series_stats(df['humidity']),
+        },
+        'risk_level_distribution': df['risk_level'].value_counts().to_dict() if not df.empty else {},
+        'fire_statistics': {
+            'total_fires': int(df['fire_count'].sum()) if not df.empty else 0,
+            'avg_fires_per_day': float(df['fire_count'].mean()) if not df.empty else 0,
+            'max_fires_in_day': int(df['fire_count'].max()) if not df.empty else 0,
+        },
+    }
+
+    if len(df) >= 7:
+        pm_mean = df['PM2.5'].rolling(window=7).mean()
+        pm_std = df['PM2.5'].rolling(window=7).std()
+        no2_mean = df['NO2'].rolling(window=7).mean()
+        no2_std = df['NO2'].rolling(window=7).std()
+        result['anomaly_analysis'] = {
+            'PM2.5_anomalies': int((np.abs(df['PM2.5'] - pm_mean) > 2 * pm_std).sum()),
+            'NO2_anomalies': int((np.abs(df['NO2'] - no2_mean) > 2 * no2_std).sum()),
+            'total_anomalies': int(((np.abs(df['PM2.5'] - pm_mean) > 2 * pm_std) |
+                                    (np.abs(df['NO2'] - no2_mean) > 2 * no2_std)).sum()),
+        }
+
+    return jsonify(result)
+
+
+@bp.route('/export/<city>')
+def export(city: str):
+    generator = _get_generator()
+    if city not in generator.cities:
+        return jsonify({'error': f'City {city} not found'}), 404
+
+    config = _get_config()
+    path = os.path.join(config.DATA_DIR, f'{city}_pollution_data.geojson')
+    if not os.path.exists(path):
+        return jsonify({'error': f'No GeoJSON data available for {city}. Generate data first.'}), 404
+
+    return send_file(path, as_attachment=True)
+
+
+@bp.route('/crop-burning/<city>')
+def crop_burning(city: str):
+    generator = _get_generator()
+    if city not in generator.cities:
+        return jsonify({'error': f'City {city} not found'}), 404
+
+    area = _school_for_city(generator.cities[city])
+    window = request.args.get('days', 30, type=int)
+    now = datetime.now()
+    start = now - timedelta(days=window)
+
+    satellite = generator.generate_satellite_data(area, start, now, num_samples=window // 2)
+    processor = SatelliteDataProcessor()
+    analysis = processor.process_crop_burning_data(satellite[0] if satellite else {}, area, window)
+
+    return jsonify({
+        'city': city,
+        'area': area,
+        'crop_burning_analysis': analysis,
+        'fire_data': satellite,
+        'date_range': {
+            'start': start.isoformat(),
+            'end': now.isoformat(),
+        },
+    })
+
+
+@bp.errorhandler(404)
+def not_found(_error):
+    return jsonify({'error': 'Endpoint not found'}), 404
+
+
+@bp.errorhandler(500)
+def server_error(_error):
+    return jsonify({'error': 'Internal server error'}), 500
+
+
