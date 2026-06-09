@@ -79,7 +79,8 @@ class PollutionConfig:
         missing = [
             key for key in (
                 'NASA_EARTH_DATA_USERNAME', 'NASA_EARTH_DATA_PASSWORD',
-                'COPERNICUS_USERNAME', 'COPERNICUS_PASSWORD'
+                'COPERNICUS_USERNAME', 'COPERNICUS_PASSWORD',
+                'OPENWEATHER_API_KEY',
             )
             if not getattr(self, key)
         ]

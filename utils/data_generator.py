@@ -181,7 +181,7 @@ class SampleDataGenerator:
         # Rush hour effects
         if 7 <= hour <= 9 or 17 <= hour <= 19:
             return 1.3
-        elif 22 <= hour or hour <= 6:
+        elif hour >= 22 or hour <= 6:
             return 0.7
         else:
             return 1.0

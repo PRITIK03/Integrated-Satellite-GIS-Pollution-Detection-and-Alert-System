@@ -101,7 +101,7 @@ class PollutionDashboard:
         if selected_city != st.session_state.current_city:
             st.session_state.current_city = selected_city
             st.session_state.data_loaded = False
-            st.experimental_rerun()
+            st.rerun()
         
         # Date range selection
         st.sidebar.subheader("📅 Date Range")
@@ -125,7 +125,7 @@ class PollutionDashboard:
                 if files:
                     st.session_state.data_loaded = True
                     st.success(f"Sample data generated for {selected_city}")
-                    st.experimental_rerun()
+                    st.rerun()
         
         # Model selection
         st.sidebar.subheader("🤖 ML Model")
