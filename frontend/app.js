@@ -336,7 +336,7 @@ function plotForecast(forecast){
   if(dates.length === 0){
     const today = new Date();
     for(let i=0;i<7;i++){
-      const d = new Date(today); d.setDate(today.getDate()+i);
+      const d = new Date(today); d.setDate(d.getDate()+i);
       dates.push(d.toISOString().slice(0,10));
       pm25.push(Math.random()*80+20);
       no2.push(Math.random()*150+50);
