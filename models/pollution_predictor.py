@@ -129,7 +129,7 @@ class PollutionPredictor:
                     
                     # Targets
                     targets_pm25.append(record.get('PM2.5', 0))
-                    targets_no2.append(record.get('NO2_mean', 0))
+                    targets_no2.append(record.get('NO2', record.get('NO2_mean', 0)))
             
             # Convert to numpy arrays
             features = np.array(features)
