@@ -167,7 +167,7 @@ def satellite_data(city: str):
     now = datetime.now()
     start = now - timedelta(days=window)
 
-    area = _school_for_city(generator.cities[city])
+    area = _area_for_city(generator.cities[city])
     records = generator.generate_satellite_data(area, start, now, num_samples=window // 2)
 
     return jsonify({
@@ -334,7 +334,7 @@ def crop_burning(city: str):
     if city not in generator.cities:
         return jsonify({'error': f'City {city} not found'}), 404
 
-    area = _school_for_city(generator.cities[city])
+    area = _area_for_city(generator.cities[city])
     window = request.args.get('days', 30, type=int)
     now = datetime.now()
     start = now - timedelta(days=window)
