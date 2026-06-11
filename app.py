@@ -17,7 +17,6 @@ import logging
 
 # Import custom modules
 from config import PollutionConfig
-from data_processing.satellite_data import SatelliteDataProcessor
 from models.pollution_predictor import PollutionPredictor
 from utils.data_generator import SampleDataGenerator
 
