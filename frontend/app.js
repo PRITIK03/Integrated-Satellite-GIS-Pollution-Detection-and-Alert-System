@@ -1,4 +1,8 @@
-import { CITY_CENTERS } from './js/config.js';
+import { API_BASE, CITY_CENTERS, applyTheme, applyPalette, colorForRisk, getPalette, plotlyLayout, riskFromValues, cssVar } from './js/config.js';
+import { loadCities, loadCityData, loadForecast, loadAnalysis } from './js/api.js';
+import { initMap, updateMap } from './js/map.js';
+import { setLoading, fadeInChart, updateKPIs, updateGISInfo, showInsights, initAnalyticsTabs, resizeAll, scheduleRefresh, openFullscreen, bindExpandButtons, toggleSidebar } from './js/ui.js';
+import { plotPM25Time, plotNO2Time, plotMiniCharts, plotCorrelation, plotForecast, plotRiskPie, plotAQIGauge, plotMatrix, plotBox, plotRadar, corr } from './js/charts.js';
 
 const els = {
   citySelect: document.getElementById('citySelect'),
@@ -75,83 +79,6 @@ async function refresh(){
   }
 
   requestAnimationFrame(resizeAll);
-}
-
-function scheduleRefresh(){
-  if(refreshTimer) clearInterval(refreshTimer);
-  if(els.autoRefresh?.checked){
-    refreshTimer = setInterval(refresh, 30_000);
-  }
-}
-
-function openFullscreen(targetSelector){
-  const target = document.querySelector(targetSelector);
-  if(!target) return;
-  const overlay = document.createElement('div');
-  overlay.className = 'fullscreen-overlay';
-  overlay.innerHTML = `
-    <div class="fullscreen-card">
-      <div class="fullscreen-header">
-        <div class="fw-bold">Fullscreen</div>
-        <div class="d-flex gap-2">
-          <button class="btn btn-sm btn-outline-secondary" id="fsRefresh">Refresh</button>
-          <button class="btn btn-sm btn-primary" id="fsClose">Close</button>
-        </div>
-      </div>
-      <div class="fullscreen-body">
-        <div class="chart-container"></div>
-      </div>
-    </div>`;
-  document.body.appendChild(overlay);
-  const container = overlay.querySelector('.chart-container');
-  const placeholder = document.createElement('div');
-  placeholder.style.height = target.style.height;
-  target.parentNode.insertBefore(placeholder, target);
-  container.appendChild(target);
-
-  function close(){
-    placeholder.parentNode.insertBefore(target, placeholder);
-    placeholder.remove();
-    overlay.remove();
-    resizeAll();
-  }
-  overlay.querySelector('#fsClose').addEventListener('click', close);
-  overlay.addEventListener('click', (e)=>{ if(e.target===overlay) close(); });
-  overlay.querySelector('#fsRefresh').addEventListener('click', refresh);
-  resizeAll();
-}
-
-function bindExpandButtons(){
-  document.querySelectorAll('.expand-btn').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      const sel = btn.getAttribute('data-target');
-      openFullscreen(sel);
-    });
-  });
-}
-
-function toggleSidebar(){
-  if(!els.sidebarCol || !els.mainCol) return;
-  const hidden = els.sidebarCol.style.display === 'none';
-  if(hidden){
-    els.sidebarCol.style.display = '';
-    els.mainCol.classList.remove('col-12');
-    els.mainCol.classList.add('col-12','col-xl-9');
-  } else {
-    els.sidebarCol.style.display = 'none';
-    els.mainCol.classList.remove('col-xl-9');
-    els.mainCol.classList.add('col-12');
-  }
-  setTimeout(resizeAll, 150);
-}
-
-function resizeAll(){
-  const chartIds = ['pm25TimeChart','no2TimeChart','forecastChart','riskPie','matrixChart','radarChart','boxChart','corrChart','pm25MiniChart','no2MiniChart','aqiGauge'];
-  chartIds.forEach(id=>{
-    const el = document.getElementById(id);
-    if(el && el.children.length){ try { Plotly.Plots.resize(el); } catch(_){} }
-  });
-  if(map){ setTimeout(()=>{ map.invalidateSize(); }, 50); }
 }
 
 async function init(){
