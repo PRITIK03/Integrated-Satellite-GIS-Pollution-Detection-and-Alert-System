@@ -74,16 +74,14 @@ button.primary:hover { background: #1f6690; }
   </div>
 </div>
 
-<script>
+<script type="module">
+import { CITY_CENTERS } from './js/config.js';
+import { loadCities as loadCitiesApi, loadCityData, loadForecast, loadAnalysis } from './js/api.js';
+import { initMap, updateMap } from './js/map.js';
+import { plotPM25Time, plotNO2Time, plotForecast, plotRiskPie } from './js/charts.js';
+
 const API = 'http://localhost:5000';
 let map, markersLayer;
-const CITY_COORDS = {
-  Delhi: [28.6139, 77.2090], Mumbai: [19.0760, 72.8777], Nagpur: [21.1458, 79.0882],
-  Beijing: [39.9042, 116.4074], Shanghai: [31.2304, 121.4737],
-  Los Angeles: [34.0522, -118.2437], New York: [40.7128, -74.0060],
-  London: [51.5074, -0.1278], Paris: [48.8566, 2.3522],
-  Tokyo: [35.6762, 139.6503], Sydney: [-33.8688, 151.2093]
-};
 const RISK_COLORS = { good: '#10b981', moderate: '#f59e0b', unhealthy: '#ef4444', very_unhealthy: '#8b5cf6', hazardous: '#000000' };
 
 function init() {
@@ -113,15 +111,8 @@ function initMap() {
 
 async function loadCities() {
   try {
-    const res = await fetch(`${API}/cities`);
-    const data = await res.json();
-    const sel = document.getElementById('citySelect');
-    sel.innerHTML = '';
-    data.cities.forEach(c => {
-      const opt = document.createElement('option');
-      opt.value = c.name; opt.textContent = c.name; sel.appendChild(opt);
-    });
-    if (sel.options.length) loadData();
+    await loadCitiesApi();
+    loadData();
   } catch (e) {
     setStatus('Failed to load cities', 'error');
   }
@@ -153,7 +144,7 @@ async function loadData() {
 function updateMap(data, city) {
   markersLayer.clearLayers();
   if (!map) return;
-  const center = CITY_COORDS[city] || [28.6, 77.2];
+  const center = CITY_CENTERS[city] || [28.6, 77.2];
   map.setView(center, 9);
   data.forEach(d => {
     const color = RISK_COLORS[d.risk_level] || '#999';
@@ -167,34 +158,10 @@ function updateMap(data, city) {
 }
 
 function updateCharts(data, forecast, analysis) {
-  Plotly.newPlot('pm25Chart', [{
-    x: data.map(d => d.date), y: data.map(d => d['PM2.5']),
-    mode: 'lines+markers', line: {color: '#3b82f6', width: 2}, marker: {size: 4}
-  }], {margin: {t: 15, r: 15, b: 35, l: 40}, xaxis: {title: 'Date'}, yaxis: {title: 'PM2.5 (µg/m³)'}});
-  Plotly.newPlot('no2Chart', [{
-    x: data.map(d => d.date), y: data.map(d => d['NO2']),
-    mode: 'lines+markers', line: {color: '#ef4444', width: 2}, marker: {size: 4}
-  }], {margin: {t: 15, r: 15, b: 35, l: 40}, xaxis: {title: 'Date'}, yaxis: {title: 'NO2 (ppb)'}});
+  plotPM25Time(data);
+  plotNO2Time(data);
+  plotForecast(forecast);
 
-  // Forecast
-  const f = forecast.forecast || {};
-  const dates = Object.keys(f);
-  const pm25 = dates.map(k => f[k]['PM2.5'] || 0);
-  const no2 = dates.map(k => f[k]['NO2'] || 0);
-  if (dates.length === 0) {
-    const today = new Date();
-    for (let i = 0; i < 7; i++) {
-      const d = new Date(today); d.setDate(today.getDate() + i);
-      dates.push(d.toISOString().slice(0, 10));
-      pm25.push(0); no2.push(0);
-    }
-  }
-  Plotly.newPlot('forecastChart', [
-    {x: dates, y: pm25, name: 'PM2.5', mode: 'lines+markers'},
-    {x: dates, y: no2, name: 'NO2', mode: 'lines+markers'}
-  ], {margin: {t: 15, r: 15, b: 35, l: 40}, xaxis: {title: 'Date'}, yaxis: {title: 'Concentration'}});
-
-  // Risk pie
   const counts = {};
   data.forEach(d => { const r = d.risk_level || 'unknown'; counts[r] = (counts[r] || 0) + 1; });
   Plotly.newPlot('riskChart', [{
