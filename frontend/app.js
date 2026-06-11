@@ -114,7 +114,7 @@ function colorForRisk(level){
   const pal = getPalette();
   const l = (level||'good');
   return pal.risk[l] || pal.risk['moderate'];
-}
+} 
 
 async function fetchJSON(url){
   const res = await fetch(url);
