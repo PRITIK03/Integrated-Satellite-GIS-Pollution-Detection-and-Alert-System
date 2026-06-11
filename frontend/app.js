@@ -13,7 +13,7 @@ async function fetchExternalAQI(city){
 }
 async function fetchExternalWeather(city){
   if(!USE_EXTERNAL_APIS) return null;
-  return null
+  return null;
 }
 
 const els = {
