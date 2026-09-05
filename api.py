@@ -1,6 +1,6 @@
 """
 Flask API Server for Pollution Detection System
-Provides REST API endpoints for data access and analysis.
+Provides REST API endpoints for data access and analysis
 """
 
 from flask import Flask
