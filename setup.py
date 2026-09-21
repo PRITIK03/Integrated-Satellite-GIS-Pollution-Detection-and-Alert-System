@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""
+""" /
 Setup script for Pollution Detection System
 Automates the installation and configuration process
 """
